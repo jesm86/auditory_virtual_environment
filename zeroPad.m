@@ -1,5 +1,4 @@
 function [newV1,newV2] = zeroPad(v1,v2)
-%this is atest
 % get next pow2 of vector
     pot1=log2(length(v1));
     pot1=ceil(pot1);
