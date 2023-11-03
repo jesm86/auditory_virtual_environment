@@ -28,8 +28,6 @@ for i = 0:runs
         overlapSaveReturn = fftConv(audio(start:stop),h);
         audioConv(start:start+blocksize-1) = overlapSaveReturn(convBlocksize-blocksize+1:convBlocksize);
     end
-
-
     
 end
 
