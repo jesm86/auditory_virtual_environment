@@ -55,7 +55,7 @@ classdef InputOutputAudio_exported < matlab.apps.AppBase
                 app.F_s = f_s;            
                 L = length(app.audioData);
                 t=(0:L-1)*(1/app.F_s);            
-                plot(app.TimeDomainAxes, t*app.F_s, app.audioData); % plot in time domain
+                plot(app.TimeDomainAxes, t, app.audioData); % plot in time domain
                 y_freqDomain = fft(app.audioData);                                % fft to plot spectra as well
                 plot(app.FreqDomainAxes, (0:L-1)*(app.F_s/L), abs(fftshift(y_freqDomain)));
                 app.ConvolutionField.Value = "ready";
@@ -135,11 +135,11 @@ classdef InputOutputAudio_exported < matlab.apps.AppBase
                 app.ReadAudioField.Value = "recording...";                
             elseif true == app.boRecordingFlag1
                 app.boRecordingFlag1 = recordAudio(app.recorder, app.F_s, app.boRecordingFlag1);
-                app.ReadAudioField.Value = "finished recordning";
+                app.ReadAudioField.Value = "record finished";
                 app.audioData= getaudiodata(app.recorder);
                 L = length(app.audioData);
                 t=(0:L-1)*(1/app.F_s);
-                plot(app.TimeDomainAxes, t*app.F_s, app.audioData);                
+                plot(app.TimeDomainAxes, t, app.audioData);                
                 y_freqDomain = fft(app.audioData);
                 plot(app.FreqDomainAxes, (0:L-1)*(app.F_s/L), abs(fftshift(y_freqDomain)));
                 app.ConvolutionField.Value = "ready";
@@ -180,7 +180,7 @@ classdef InputOutputAudio_exported < matlab.apps.AppBase
           L = length(app.convolvedSignalData);
           t=(0:L-1)*(1/app.F_s);
 
-          plot(app.TimeDomainAxes, t*app.F_s, app.convolvedSignalData);
+          plot(app.TimeDomainAxes, t, app.convolvedSignalData);
 
           y_freqDomain = fft(app.convolvedSignalData);
           plot(app.FreqDomainAxes, (0:L-1)*(app.F_s/L), abs(fftshift(y_freqDomain)));
