@@ -1,0 +1,19 @@
+function resultMatrix=plot1stOrdImgSrc(roomDimensions,sourceCoord)
+%Funtion that calculates 1st order reflection imf srcs and returns a 3 x
+%6 array
+%lftofzaxis
+%rightofZaxis
+%leftofYaxis
+%rightofYaxis
+%aboveofXaxis
+%belowofXaxis
+%(x,y,z)
+resultMatrix =[(0-abs(0-sourceCoord(1))) sourceCoord(2) sourceCoord(3);...
+    (roomDimensions(1)+abs(roomDimensions(1)-sourceCoord(1))) sourceCoord(2) sourceCoord(3);...
+    sourceCoord(1) sourceCoord(2) (roomDimensions(3)+abs(roomDimensions(3)-sourceCoord(3)));...
+    sourceCoord(1) sourceCoord(2) (0-abs(0-sourceCoord(3)));...
+    sourceCoord(1) (roomDimensions(2)+abs(sourceCoord(2)-roomDimensions(2))) sourceCoord(3);...
+    sourceCoord(1) (0-abs(sourceCoord(2)-0)) sourceCoord(3);...
+    ];
+
+end
