@@ -1,7 +1,7 @@
 function resultMatrix=plot1stOrdImgSrc(roomDimensions,sourceCoord,roomOrgin)
 %The parameter passed in roomOrgin is the left,dwon,front corner of the
 %cube that is passed in and taken as the Orgin of the room. For 1st order
-%image source it is 0,0,0.
+%image source it is 
 
 %Function that calculates 1st order reflection imf srcs and returns a 3 x
 %6 array
