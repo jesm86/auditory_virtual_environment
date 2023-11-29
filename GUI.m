@@ -1,4 +1,37 @@
-classdef InputOutputAudio_exported < matlab.apps.AppBase
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% IE7-CJ2 WS2023 - Design, Implementation and Evaluation of an Auditory Virtual Environment
+% Team 2 - J. Harms, T. Warnakulasooriya, L.Gildenstern, J. Smith
+% 
+% -------------------------------------------------------------------------------------
+%  Module: GUI.m
+%
+%   Graphical User Interface. This GUI in its curren state is merely used
+%   for testing and visibly demonstrating the functionalities that had to be implemented
+%   for the first deliverables of the project. It is not yet designed to
+%   look particularly nice (this will be implemented later in the project).
+%   The user has the possibility to call all of the function (audiofile
+%   read-in, microphone recording, linear+fast convolution and saving +
+%   playing the audio) using drop-down menus and buttons. For demonstrating
+%   convolution, the GUI provides to build-in impulse responses: A simple echo, that is
+%   implemented directly in this m-file and a impulse response of St
+%   Andrews Church London.
+%   This GUI was created using the built-in AppDesigner functionality of
+%   Matlab. Since the GUI itself is not yet part of the deliverables. only
+%   the button and drop down callback functions that have been written by the 
+%   project team are commented (albeit sparsely). The AppDesigner Code has not yet been
+%   commented extensively. This will be added later when the GUI will be
+%   more in its final formal and when it is part of the delivarables.
+%
+%
+%  Version      Date                Author                  Comment
+% -------------------------------------------------------------------------
+%   1.1             18.10.23    L. Gildenstern           initial version  
+%   1.1             04.11.23    J.Smith                     clean up + comments
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+classdef GUI < matlab.apps.AppBase
 
     % Properties that correspond to app components
     properties (Access = public)
@@ -442,7 +475,7 @@ classdef InputOutputAudio_exported < matlab.apps.AppBase
     methods (Access = public)
 
         % Construct app
-        function app = InputOutputAudio_exported
+        function app = GUI
 
             % Create UIFigure and components
             createComponents(app)
