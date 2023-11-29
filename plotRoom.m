@@ -10,6 +10,13 @@ hold on;
 plot3(X,Y,Z,"k","LineWidth",1.5);   % draw a square in the xy plane with z = 0
 plot3(X,Y,Z+roomDimensions(3),"k","LineWidth",1.5); % draw a square in the xy plane with z = 1
 set(gca,"View",[-28,35]); % set the azimuth and elevation of the plot
+% Lx = roomDimensions(1);
+% Ly = roomDimensions(2);
+% Lz = roomDimensions(3);
+% 
+% xlim([-3*Lx,3*Lx]);
+% ylim([-3*Ly,3*Ly]);
+% zlim([-3*Lz,3*Lz]);
 for k=1:length(X)-1
     plot3([X(k);X(k)],[Y(k);Y(k)],[0;roomDimensions(3)],"k","LineWidth",1.5);
 end
