@@ -1,19 +1,12 @@
-function [iR,isourceCoord] = IRfromCuboid(roomDimensions,sourceCoord,receiverCoord,maxReverb,wallCoeff,Fs)
-% roomDimensions=[x,y,z];
-% sourceCoord=[x,y,z];
-% receiverCoord=[x,y,z];  
+function [iR,isourceCoord,delay,dist] = IRfromCuboid(roomDimensions,sourceCoord,receiverCoord,maxReverb,wallCoeff,Fs)
+% roomDimensions=[x,y,z] in m
+% sourceCoord=[x,y,z] in m
+% receiverCoord=[x,y,z] in m  
 % maxReverb=t in s;
-% wallCoef=[left, right, front, back, floor, ceiling]
+% wallCoef=[left, right, front, back, floor, ceiling]  range[0:1]
 % Fs=44100;
 
-c  = 343; % Speed of sound (m/s)
-
-
-
-%  function calculate range of n,l,m 
-n = 3;
-l = 3;
-m = 3;
+c_sound = 343; % Speed of sound (m/s)
 
 % calculate image sources with looping over n,l,m
 % calculate order of image source while creating it
@@ -23,14 +16,7 @@ Lz = roomDimensions(3);
 x = sourceCoord(1);
 y = sourceCoord(2);
 z = sourceCoord(3);
-sourceXYZ = [-x -y -z;...
-             -x -y  z;...
-             -x  y -z;...
-             -x  y  z;...
-              x -y -z;...
-              x -y  z;...
-              x  y -z;...
-              x  y  z].';
+sourceXYZ = zeros(3,2,2,2);
 nx=1;
 for n=-1:2:1
     lx=1;
@@ -45,7 +31,15 @@ for n=-1:2:1
     nx=nx+1;
 end
 
-
+%  function calculate range of n,l,m 
+maxDist = maxReverb * c_sound;
+n = ceil(maxDist / roomDimensions(1));
+l = ceil(maxDist / roomDimensions(2));
+m = ceil(maxDist / roomDimensions(3));
+%not used because of performance
+% {n=1;
+% l=1;
+% m=1;
 
 nVect = -n:n;
 lVect = -l:l;
@@ -94,7 +88,6 @@ for n = nVect
                                  * wallCoeff(6)^abs(m);
 
                         isourceCoord(i,:)=isourceCoords(:,ax,bx,cx);
-
                         i=i+1;
                         mx=mx+1;
                     end
@@ -102,15 +95,6 @@ for n = nVect
                 end
                 nx=nx+1;
             end
-            
-            
-            %for kk=1:8
-                
-                % insert wallcoef selection for cuboid
-            %    isourceCoord(i,:)=isourceCoords(:,kk);
-                %plot3(isourceCoord(1),isourceCoord(2),isourceCoord(3),"g*")
-             %   i=i+1;
-            %end 
         end
     end
 end
@@ -126,7 +110,7 @@ iR = zeros(maxReverb*Fs,1);
 
 %calc delay
 dist = sqrt(sum((isourceCoord-receiverCoord).^2, 2));
-delay = round((Fs/c).*dist);
+delay = round((Fs/c_sound)*dist);
 
 %delete all items exceeding maxReverb*Fs
 isourceCoord = isourceCoord(delay < maxReverb*Fs,:);
