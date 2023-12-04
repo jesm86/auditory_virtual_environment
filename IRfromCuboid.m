@@ -31,7 +31,7 @@ for n=-1:2:1
     nx=nx+1;
 end
 
-%  function calculate range of n,l,m 
+%  function calculate range of n,l,m cuboid
 maxDist = maxReverb * c_sound;
 n = ceil(maxDist / roomDimensions(1));
 l = ceil(maxDist / roomDimensions(2));
@@ -62,22 +62,37 @@ for n = nVect
                     bx=round(b/2+1);   %converts range to 1:2
                     for c=-1:2:1
                         cx=round(c/2+1);   %converts range to 1:2
-                        if (sign(a) == sign(n)) || (n==0 && a<0)
+                        % x-axis
+                        if (sign(a) == sign(n)) || (n==0 && a<0)    % (check direction)
                             u=1;
                         else
                             u=0;
                         end
 
+                        if (n>0)
+                            u=u-1;
+                        end
+                        
+                        %y-axes
                         if (sign(b) == sign(l)) || (l==0 && b<0)
                             v=1;
                         else
                             v=0;
                         end
 
+                        if (l>0)
+                            v=v-1;
+                        end
+                        
+                        %z-axes
                         if (sign(c) == sign(m)) || (m==0 && c<0)
                             w=1;
                         else
                             w=0;
+                        end
+
+                        if (m>0)
+                            w=w-1;
                         end
 
                         coefs(i) = wallCoeff(1)^(abs(n)+u)...
