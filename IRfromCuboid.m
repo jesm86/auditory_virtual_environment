@@ -63,6 +63,7 @@ for n = nVect
                     for c=-1:2:1
                         cx=round(c/2+1);   %converts range to 1:2
                         % x-axis
+                        u = sign(n)*-1;
                         if (sign(a) == sign(n)) || (n==0 && a<0)    % (check direction)
                             u=1;
                         else
