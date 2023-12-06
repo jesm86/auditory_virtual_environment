@@ -34,12 +34,16 @@ function [boSuccess, audiodata, f_s] = readAudiofile()
     [file,path] = uigetfile({'*.wav; *.mp3; *.flac', 'Audio files (*.wav, *.mp3, *.flac)'});
     if isequal(file, 0)
         boSuccess = false;
+        f_s = 0;
+        audiodata = zeros();
     else
         try
             [audiodata, f_s] = audioread(fullfile(path,file));
             boSuccess = true;
         catch 
             boSuccess = false;
+            f_s = 0;
+            audiodata = zeros();
         end     
     end
 end

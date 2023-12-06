@@ -1,20 +1,59 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% IE7-CJ2 WS2023 - Design, Implementation and Evaluation of an Auditory Virtual Environment
+% Team 2 - J. Harms, T. Warnakulasooriya, L.Gildenstern, J. Smith
+% 
+% -------------------------------------------------------------------------------------
+%  Module: IRfromCuboid.m
+%
+%   This module renders the image sources for a given source and
+%   receiver pair in a given three dimensional cuboid room. The amount of rendered
+%   image sources is restricted by setting a maximal reverberation time.
+%   Additionally, different wall absorption coefficients for all six walls
+%   of the cuboid have to be set by the user.
+%
+%
+%  Version      Date                Author                  Comment
+% -------------------------------------------------------------------------
+%   1.0             03.12.23    L.Gildenstern            created
+%   1.1             05.12.23    J.Smith, T.W.    comments added
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%   param[in]       roomDimensions  Dimensions of the room for rendering [x, y, z] in m
+%   param[in]       sourceCoord         Coordinates of sound source in room [x, y, z] in m
+%   param[in]       receiverCoord       Coordinates of receiver in room [x, y, z] in m
+%   param[in]       maxReverb           maximal reverberation time for rendering walls 
+%                                                      [left, right, front, back, floor, ceiling], range[0:1]
+%   param[in]       Fs                         sampling rate of rendered impulse response
+%
+%   retval             iR                          vector containing rendered impulse response
+%   retval             isourceCoord        coordinates of calculated image sources
+%   retval             delay                     vector containing delay [s] of associated image sources
+%   retval             dist                        vector containing distance [m] of associated image sources
 function [iR,isourceCoord,delay,dist] = IRfromCuboid(roomDimensions,sourceCoord,receiverCoord,maxReverb,wallCoeff,Fs)
-% roomDimensions=[x,y,z] in m
-% sourceCoord=[x,y,z] in m
-% receiverCoord=[x,y,z] in m  
-% maxReverb=t in s;
-% wallCoef=[left, right, front, back, floor, ceiling]  range[0:1]
-% Fs=44100;
 
-c_sound = 343; % Speed of sound (m/s)
+% Speed of sound [m/s]
+c_sound = 343; 
 
-% calculate image sources aroudn origin with looping over n,l,m
 Lx = roomDimensions(1); 
 Ly = roomDimensions(2);
 Lz = roomDimensions(3);
 x = sourceCoord(1);
 y = sourceCoord(2);
 z = sourceCoord(3);
+
+%{
+Pre allocation with zeros is used for perfromance.
+In the 4 dimensional sourceXYZ array the first dimension holds the x,y,z
+cordinates of the 3D vector space.
+
+The 8 cuboids of vertices around the orgin (0,0,0) are classified in the 2nd, 
+3rd & 4th dimensional array of sourceXYZ.
+
+In the nested for loops the mirrored image soruces across the x,y,z axis
+are calculated by inverting the signs of the source's coordinates.
+%}
 sourceXYZ = zeros(3,2,2,2);
 nx=1;
 for n=-1:2:1
@@ -30,7 +69,8 @@ for n=-1:2:1
     nx=nx+1;
 end
 
-%  function calculate range of n,l,m; create cuboid
+% Calculating the maximal allowable distance of an image source using the
+% maximal reverberation time specified by the user and the speed of sound
 maxDist = maxReverb * c_sound;
 n = ceil(maxDist / roomDimensions(1));
 l = ceil(maxDist / roomDimensions(2));
@@ -40,12 +80,14 @@ nVect = -n:n;
 lVect = -l:l;
 mVect = -m:m;
 
-%preallocate output vector of image sources and coefficients
+% Preallocation for performance improvement
 isourceLen=length(nVect)*length(lVect)*length(mVect);
 isourceCoord = zeros(isourceLen,3);
 coefs = zeros(isourceLen,1);
 
-%loop over n,l,m and shifiting origins
+% Loop over n,l,m and shifiting origins
+% Loop over maximal distances and calculate image sources additional allowable image
+% sources 
 i=1;
 for n = nVect
     for l = lVect
@@ -61,9 +103,8 @@ for n = nVect
                     for c=-1:2:1
                         cx=round(c/2+1);   %converts range to 1:2
                         
-                        %calculate wallcoefficients
+                        % Calculate wall absorption coefficients
                         % x-axis
-                        u = sign(n)*-1;
                         if (sign(a) == sign(n)) || (n==0 && a<0)    
                             u=1;
                         else
@@ -116,19 +157,20 @@ for n = nVect
     end
 end
 
-% declare dirac pulse
+% Allocate vector for impulse response
 iR = zeros(maxReverb*Fs,1);
 
-%calc delay in steps of iR
+% Calculate delay of image source in impulse resonse
 dist = sqrt(sum((isourceCoord-receiverCoord).^2, 2));
 delay = round((Fs/c_sound)*dist);
 
-%delete all items exceeding maxReverb*Fs; cuboid -> sphere
+% Remove all items still exceeding max reverberation time
+% This will be the ones with a diagonal path (thus, cuboid becomes sphere)
 isourceCoord = isourceCoord(delay < maxReverb*Fs,:);
 coefs = coefs(delay < maxReverb*Fs);
 delay = delay(delay < maxReverb*Fs);
 
-% add reverberations to iR
+% add reverberations to imulse response
 for i = 1:numel(delay)
     iR(delay(i)) = iR(delay(i)) + coefs(i);
 end
