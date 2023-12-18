@@ -1,39 +1,11 @@
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%
-% IE7-CJ2 WS2023 - Design, Implementation and Evaluation of an Auditory Virtual Environment
-% Team 2 - J. Harms, T. Warnakulasooriya, L.Gildenstern, J. Smith
-% 
-% -------------------------------------------------------------------------------------
-%  Module: GUI.m
-%
-%   Graphical User Interface.
-%   The user has the possibility to call all of the function (audiofile
-%   read-in, microphone recording, linear+fast convolution and saving +
-%   playing the audio) using drop-down menus and buttons. For demonstrating
-%   convolution, the GUI provides to build-in impulse responses: A simple echo, that is
-%   implemented directly in this m-file and a impulse response of St
-%   Andrews Church London. Additionaly different convolution methods
-%   (linear, fft-based and overlap-save-blockprocessing-based) can be
-%   chosen. If the image source method is chosen, the convolution type will
-%   automatically be set to blockprocessing. The user has to set the block
-%   size himself. Default value is 2**20 = 1048576.
-%   This GUI was created using the built-in AppDesigner functionality of
-%   Matlab. 
-%
-%
-%  Version      Date                Author                  Comment
-% -------------------------------------------------------------------------
-%   1.1             18.10.23    J.Smith                    initial version  
-%   1.1             04.11.23    J.Smith                    clean up + comments
-%   2.0             05.12.23    J.Smith                   update for second deliverables (image source rendering)
-%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 classdef GUI < matlab.apps.AppBase
 
     % Properties that correspond to app components
     properties (Access = public)
         UIFigure                  matlab.ui.Figure
+        ButtonLoadHRIR            matlab.ui.control.Button
+        RTButtonConv              matlab.ui.control.Button
+        RTButtonStartStop         matlab.ui.control.Button
         ShowraytracesCheckBox     matlab.ui.control.CheckBox
         PlotimagesourcesCheckBox  matlab.ui.control.CheckBox
         Render                    matlab.ui.control.Button
@@ -76,25 +48,24 @@ classdef GUI < matlab.apps.AppBase
         recorder = audiorecorder(44100, 16, 1); % Object of class audiorecorder for recording audio
                                                                         % with microphone. Sampling rate will be 44,1kHz
                                                                         % 16 bit quantization and 1 channel
+        hrir_set,                                                   % Full set of loaded HRIR by MIT
     end
     
 
     % Callbacks that handle component events
     methods (Access = private)
 
-        % Callback function for "Read audio" button 1
+        % Button pushed function: ReadAudioButton
         function ReadAudioButtonPushed(app, event)
             [boFileRead, timeDomain, f_s] = readAudiofile;  % call function to read audio file
             if true == boFileRead                                           % if successful: save data and f_s          
-                    app.ReadAudioField.Value = 'file read';       % display "file read" in text field
-
-                    % Plot audio signal in time and frequency domain
+                    app.ReadAudioField.Value = 'file read';            
                     app.audioData= timeDomain;
                     app.F_s = f_s;            
                     L = length(app.audioData);
                     t=(0:L-1)*(1/app.F_s);            
-                    plot(app.TimeDomainAxes, t, app.audioData); 
-                    y_freqDomain = fft(app.audioData);                                
+                    plot(app.TimeDomainAxes, t, app.audioData); % plot in time domain
+                    y_freqDomain = fft(app.audioData);                                % fft to plot spectra as well
                     plot(app.FreqDomainAxes, (0:L-1)*(app.F_s/L), abs(fftshift(y_freqDomain)));
                     app.ConvolutionField.Value = "ready";
             else 
@@ -102,16 +73,16 @@ classdef GUI < matlab.apps.AppBase
             end
         end
 
-        % Callback function for "Write audio button"
+        % Button pushed function: WriteAudioButton
         function WriteAudioButtonPushed(app, event)
-            % If convolution was successfuly performed, use this instead
+            % write audiodata to file or speaker using writeAudiofile module
             try                                         
                 if "finished" == app.ConvolutionField.Value
                     audio = app.convolvedSignalData;
                 else
                     audio = app.audioData;
                 end
-                % Depending on dropdown menu, write audio to speaker, as flac file or as wav file 
+
                 if "Speaker" == app.OutputDropDown.Value
                     boStatus = writeAudiofile("speaker", audio, app.F_s);
                     if true == boStatus
@@ -139,17 +110,43 @@ classdef GUI < matlab.apps.AppBase
             end
         end
 
-        % Callback for input source dropdown menu value change event
+        % Value changed function: InputDropDown
         function InputDropDownValueChanged(app, event)
-            % If dropdown value was changed to 'Microphone': Only show
-            % "Record" button, make "Read file" button invisible
+            % Only show "Start Recording" or "Read file" button depending
+            % on drop down menu
             if "Microphone" == app.InputDropDown.Value
                 app.StartStopRecordingButton.Visible = "on";
                 app.ReadAudioButton.Visible = "off";
-            % In other cases reverse visibility of the two buttons
-            else
+                app.TimeDomainAxes.Visible = "on";
+                app.TimeDomainAxes_2.Visible = "on";
+                app.FreqDomainAxes.Visible = "on";
+                app.FreqDomainAxes_2.Visible = "on";
+                app.ResampleInput.Visible = "on";
+                app.RTButtonStartStop.Visible = "off";
+                app.InputDropDown_3.Visible = "on";
+                app.RTButtonConv.Visible = "off";
+            elseif "Audiofile" == app.InputDropDown.Value
                 app.StartStopRecordingButton.Visible = "off";
                 app.ReadAudioButton.Visible = "on";
+                app.TimeDomainAxes.Visible = "on";
+                app.TimeDomainAxes_2.Visible = "on";
+                app.FreqDomainAxes.Visible = "on";
+                app.FreqDomainAxes_2.Visible = "on";
+                app.ResampleInput.Visible = "on";
+                app.RTButtonStartStop.Visible = "off";
+                app.InputDropDown_3.Visible = "on";
+                app.RTButtonConv.Visible = "off";
+            elseif "Real-Time Microphone" == app.InputDropDown.Value
+                app.StartStopRecordingButton.Visible = "off";
+                app.ReadAudioButton.Visible = "off";
+                app.TimeDomainAxes.Visible = "off";
+                app.TimeDomainAxes_2.Visible = "off";
+                app.FreqDomainAxes.Visible = "off";
+                app.FreqDomainAxes_2.Visible = "off";
+                app.ResampleInput.Visible = "off";
+                app.RTButtonStartStop.Visible = "on";         
+                app.InputDropDown_3.Visible = "off";
+                app.RTButtonConv.Visible = "on";
             end
             app.ReadAudioField.Value = "";
             cla(app.TimeDomainAxes);
@@ -176,8 +173,6 @@ classdef GUI < matlab.apps.AppBase
                 app.boRecordingFlag1 = recordAudio(app.recorder, app.F_s, app.boRecordingFlag1);
                 app.ReadAudioField.Value = "record finished";
                 app.audioData= getaudiodata(app.recorder);
-                
-                % Create plot of time domain signal and its spectrum
                 L = length(app.audioData);
                 t=(0:L-1)*(1/app.F_s);
                 plot(app.TimeDomainAxes, t, app.audioData);                
@@ -218,18 +213,18 @@ classdef GUI < matlab.apps.AppBase
             catch
                app.ConvolutionField.Value = "failed";
             end
-          % Create plots (time domain and spectrum)
           L = length(app.convolvedSignalData);
           t=(0:L-1)*(1/app.F_s);
+
           plot(app.TimeDomainAxes, t, app.convolvedSignalData);
+
           y_freqDomain = fft(app.convolvedSignalData);
           plot(app.FreqDomainAxes, (0:L-1)*(app.F_s/L), abs(fftshift(y_freqDomain)));
         end
 
-        % Callback: Read impulse response button
+        % Button pushed function: ReadAudioButton_2
         function ReadAudioButton_2Pushed(app, event)
-            % Functionality to read in impulse response from a file. Analog
-            % to file reading of audio signal above
+            %Functionality to read in impulse response from a file
             if "File" == app.InputDropDown_2.Value
                 [file_2,path_2] = uigetfile({'*.wav; *.mp3; *.flac', 'Audio files (*.wav, *.mp3, *.flac)'});
                 if isequal(file_2, 0)
@@ -288,7 +283,6 @@ classdef GUI < matlab.apps.AppBase
                     msgbox("No input signal to create echo", "Error", "modal");
                 end
             elseif "Image Source Method" == app.InputDropDown_2.Value
-                % Implementation of image source rendering functionality
                 app.InputDropDown_3.Visible = "off";
                 app.BlocksizeEditField.Visible = "on";
                 app.BlocksizeLabel.Visible = "on";
@@ -337,20 +331,14 @@ classdef GUI < matlab.apps.AppBase
             
         end
 
-        % Callback function for "Resample" Button
-        % Popup window to enter target sampling frequency
+        % Button pushed function: ResampleInput
         function ResampleInputButtonPushed(app, event)
             promt = 'Enter sample rate for resampling of input signal:';
             title = "Resampling of input signal";
             dims = [1 60];
             defaultValue = {''};
             inputValue = inputdlg(promt, title, dims, defaultValue);
-            
-            % If a target frequency has been entered, resampling is done
-            % and the two plots are updated
-            % resample(input_signal, p, q). Resampled to p/q * sample_rate.
-            % If p is target_rate and q old_rate, then:
-            % new_rate = old_rate * (target_rate/old_rate) = target_rate
+
             if isempty(inputValue)
             else
                 targetFreq =  str2double(inputValue);
@@ -359,15 +347,14 @@ classdef GUI < matlab.apps.AppBase
 
                 L = length(app.audioData);
                 t=(0:L-1)*(1/app.F_s);            
-                plot(app.TimeDomainAxes, t, app.audioData); 
-                y_freqDomain = fft(app.audioData);                              
+                plot(app.TimeDomainAxes, t, app.audioData); % plot in time domain
+                y_freqDomain = fft(app.audioData);                                % fft to plot spectra as well
                 plot(app.FreqDomainAxes, (0:L-1)*(app.F_s/L), abs(fftshift(y_freqDomain)));
             end
 
         end
 
-        % Callback function for "Resample" Button of impulse response
-        % Functionality analogue to other resampling
+        % Button pushed function: ResampleIR
         function ResampleIRButtonPushed(app, event)
             promt = 'Enter sample rate for resampling of impulse response';
             title = "Resampling of impulse response";
@@ -391,9 +378,7 @@ classdef GUI < matlab.apps.AppBase
 
         end
 
-        % Callback function for "Render" Button
-        % Creates popup windows and asks the user to enter parameters of
-        % image source rendering
+        % Button pushed function: Render
         function RenderButtonPushed(app, event)
             % get room dimensions
             promt = {"Room length:", "Room width:", "Room height:"};
@@ -450,16 +435,12 @@ classdef GUI < matlab.apps.AppBase
             maxReverbTime = str2double(inputs(1));
             samplingRate = str2double(inputs(2));
             end
-            
-            % Check if all parameters have been entered and call
-            % IRfromCuboid funtion
+
             if ~isempty(roomDimensions) && ~isempty(Source) && ~isempty(Receiver) && ~isempty(WallCoeff) && ~isempty(maxReverbTime) && ~isempty(samplingRate)
                  [IRdata, imageSourceCoords]  = IRfromCuboid(roomDimensions, Source, Receiver, maxReverbTime, WallCoeff, samplingRate);
                  app.impulseResponseData = IRdata;
                  app.F_s_2 = samplingRate;
-                
-                 % Update impulse response time-domain plot and spectrum
-                 % plot of main GUI
+
                  if ~isempty(app.impulseResponseData)
                     L = length(app.impulseResponseData);
                     t=(0:L-1)*(1/app.F_s_2);
@@ -469,12 +450,21 @@ classdef GUI < matlab.apps.AppBase
                     y_freqDomain = fft(app.impulseResponseData);
                     plot(app.FreqDomainAxes_2, (0:L-1)*(app.F_s_2/L), abs(fftshift(y_freqDomain)));
                  end
-                
-                 % If box for image source plotting is ticked, call
-                 % plotImagesources() function
+
                  if app.PlotimagesourcesCheckBox.Value
                     plotImageSources(roomDimensions, Receiver, Source, imageSourceCoords, app.ShowraytracesCheckBox.Value);
                  end
+            end
+        end
+
+        % Button pushed function: ButtonLoadHRIR
+        function ButtonLoadHRIRPushed(app, event)
+            filepaths = fullfile("./impulse_responses//HRTF_full/", "**", "*.dat");
+            hrir_files = dir(filepaths);
+
+            for i = 1:length(hrir_files)
+                currentFile = fullfile(hrir_files(i).folder, hrir_files(i).name);
+                app.hrir_set = fopen(currentFile);
             end
         end
     end
@@ -540,7 +530,7 @@ classdef GUI < matlab.apps.AppBase
 
             % Create InputDropDown
             app.InputDropDown = uidropdown(app.UIFigure);
-            app.InputDropDown.Items = {'Audiofile', 'Microphone'};
+            app.InputDropDown.Items = {'Audiofile', 'Microphone', 'Real-Time Microphone'};
             app.InputDropDown.ValueChangedFcn = createCallbackFcn(app, @InputDropDownValueChanged, true);
             app.InputDropDown.Position = [21 623 100 22];
             app.InputDropDown.Value = 'Audiofile';
@@ -549,14 +539,14 @@ classdef GUI < matlab.apps.AppBase
             app.OutputDropDownLabel = uilabel(app.UIFigure);
             app.OutputDropDownLabel.HorizontalAlignment = 'right';
             app.OutputDropDownLabel.FontWeight = 'bold';
-            app.OutputDropDownLabel.Position = [48 502 48 22];
+            app.OutputDropDownLabel.Position = [50 472 48 22];
             app.OutputDropDownLabel.Text = 'Output ';
 
             % Create OutputDropDown
             app.OutputDropDown = uidropdown(app.UIFigure);
             app.OutputDropDown.Items = {'Speaker', 'Free Lossless Audio Codec (flac)', 'Microsoft WAVE sound (wav)'};
             app.OutputDropDown.ValueChangedFcn = createCallbackFcn(app, @OutputDropDownValueChanged, true);
-            app.OutputDropDown.Position = [22 472 100 22];
+            app.OutputDropDown.Position = [24 442 100 22];
             app.OutputDropDown.Value = 'Speaker';
 
             % Create ReadAudioButton
@@ -568,7 +558,7 @@ classdef GUI < matlab.apps.AppBase
             % Create WriteAudioButton
             app.WriteAudioButton = uibutton(app.UIFigure, 'push');
             app.WriteAudioButton.ButtonPushedFcn = createCallbackFcn(app, @WriteAudioButtonPushed, true);
-            app.WriteAudioButton.Position = [140 471 100 23];
+            app.WriteAudioButton.Position = [139 442 100 23];
             app.WriteAudioButton.Text = 'Write audio';
 
             % Create ReadAudioField
@@ -577,7 +567,7 @@ classdef GUI < matlab.apps.AppBase
 
             % Create WriteAudioField
             app.WriteAudioField = uieditfield(app.UIFigure, 'text');
-            app.WriteAudioField.Position = [257 471 100 22];
+            app.WriteAudioField.Position = [256 442 100 22];
 
             % Create StartStopRecordingButton
             app.StartStopRecordingButton = uibutton(app.UIFigure, 'push');
@@ -624,8 +614,8 @@ classdef GUI < matlab.apps.AppBase
             app.ConvolutiontypeLabel = uilabel(app.UIFigure);
             app.ConvolutiontypeLabel.HorizontalAlignment = 'right';
             app.ConvolutiontypeLabel.FontWeight = 'bold';
-            app.ConvolutiontypeLabel.Position = [552 638 103 28];
-            app.ConvolutiontypeLabel.Text = 'Convolution type';
+            app.ConvolutiontypeLabel.Position = [537 638 103 28];
+            app.ConvolutiontypeLabel.Text = 'Convolution';
 
             % Create InputDropDown_3
             app.InputDropDown_3 = uidropdown(app.UIFigure);
@@ -675,13 +665,31 @@ classdef GUI < matlab.apps.AppBase
             app.PlotimagesourcesCheckBox = uicheckbox(app.UIFigure);
             app.PlotimagesourcesCheckBox.Visible = 'off';
             app.PlotimagesourcesCheckBox.Text = 'Plot image sources';
-            app.PlotimagesourcesCheckBox.Position = [25 544 124 22];
+            app.PlotimagesourcesCheckBox.Position = [23 544 124 22];
 
             % Create ShowraytracesCheckBox
             app.ShowraytracesCheckBox = uicheckbox(app.UIFigure);
             app.ShowraytracesCheckBox.Visible = 'off';
             app.ShowraytracesCheckBox.Text = 'Show raytraces';
             app.ShowraytracesCheckBox.Position = [154 544 105 22];
+
+            % Create RTButtonStartStop
+            app.RTButtonStartStop = uibutton(app.UIFigure, 'push');
+            app.RTButtonStartStop.Visible = 'off';
+            app.RTButtonStartStop.Position = [139 622 100 23];
+            app.RTButtonStartStop.Text = 'Start / Stop';
+
+            % Create RTButtonConv
+            app.RTButtonConv = uibutton(app.UIFigure, 'push');
+            app.RTButtonConv.Visible = 'off';
+            app.RTButtonConv.Position = [537 575 137 23];
+            app.RTButtonConv.Text = 'Real-Time Convolution';
+
+            % Create ButtonLoadHRIR
+            app.ButtonLoadHRIR = uibutton(app.UIFigure, 'push');
+            app.ButtonLoadHRIR.ButtonPushedFcn = createCallbackFcn(app, @ButtonLoadHRIRPushed, true);
+            app.ButtonLoadHRIR.Position = [24 507 100 23];
+            app.ButtonLoadHRIR.Text = 'Load HRIR set';
 
             % Show the figure after all components are created
             app.UIFigure.Visible = 'on';
