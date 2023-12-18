@@ -6,22 +6,19 @@
 % -------------------------------------------------------------------------------------
 %  Module: GUI.m
 %
-%   Graphical User Interface. This GUI in its curren state is merely used
-%   for testing and visibly demonstrating the functionalities that had to be implemented
-%   for the first deliverables of the project. It is not yet designed to
-%   look particularly nice (this will be implemented later in the project).
+%   Graphical User Interface.
 %   The user has the possibility to call all of the function (audiofile
 %   read-in, microphone recording, linear+fast convolution and saving +
 %   playing the audio) using drop-down menus and buttons. For demonstrating
 %   convolution, the GUI provides to build-in impulse responses: A simple echo, that is
 %   implemented directly in this m-file and a impulse response of St
-%   Andrews Church London.
+%   Andrews Church London. Additionaly different convolution methods
+%   (linear, fft-based and overlap-save-blockprocessing-based) can be
+%   chosen. If the image source method is chosen, the convolution type will
+%   automatically be set to blockprocessing. The user has to set the block
+%   size himself. Default value is 2**20 = 1048576.
 %   This GUI was created using the built-in AppDesigner functionality of
-%   Matlab. Since the GUI itself is not yet part of the deliverables. only
-%   the button and drop down callback functions that have been written by the 
-%   project team are commented (albeit sparsely). The AppDesigner Code has not yet been
-%   commented extensively. This will be added later when the GUI will be
-%   more in its final formal and when it is part of the delivarables.
+%   Matlab. 
 %
 %
 %  Version      Date                Author                  Comment
@@ -294,6 +291,7 @@ classdef GUI < matlab.apps.AppBase
                 % Implementation of image source rendering functionality
                 app.InputDropDown_3.Visible = "off";
                 app.BlocksizeEditField.Visible = "on";
+                app.BlocksizeLabel.Visible = "on";
                 app.Render.Visible = "on";
                 app.ShowraytracesCheckBox.Visible = "on";
                 app.PlotimagesourcesCheckBox.Visible = "on";

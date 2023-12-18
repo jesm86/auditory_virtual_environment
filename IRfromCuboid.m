@@ -105,7 +105,7 @@ for n = nVect
                         
                         % Calculate wall absorption coefficients
                         % x-axis
-                        if (sign(a) == sign(n)) || (n==0 && a<0)    
+                        if (sign(a) == sign(n)) || (n==0 && a>0)    
                             u=1;
                         else
                             u=0;
@@ -116,7 +116,7 @@ for n = nVect
                         end
                         
                         %y-axes
-                        if (sign(b) == sign(l)) || (l==0 && b<0)
+                        if (sign(b) == sign(l)) || (l==0 && b>0)
                             v=1;
                         else
                             v=0;
@@ -127,7 +127,7 @@ for n = nVect
                         end
                         
                         %z-axes
-                        if (sign(c) == sign(m)) || (m==0 && c<0)
+                        if (sign(c) == sign(m)) || (m==0 && c>0)
                             w=1;
                         else
                             w=0;
