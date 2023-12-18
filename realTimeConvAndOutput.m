@@ -12,7 +12,7 @@ playRec = audioPlayerRecorder(Fs);
 audioOverlap = zeros(convBlocksize,1);
 
 % preallocate output
-output = zeros(blockSize,1);
+output = zeros(blockSize,2);
 
 while ~breakFunc()
     % read a block of audio data and output the one processed before
@@ -22,8 +22,10 @@ while ~breakFunc()
     audioOverlap = [audioOverlap(blockSize+1:end);data];
 
     % Perform fast convolution on current block 
-    overlapSaveReturn = fftConv(audioOverlap,h);     
-    output = overlapSaveReturn(convBlocksize-blockSize+1:convBlocksize);
+    overlapSaveReturnLeft = fftConv(audioOverlap,h(:,1));
+    overlapSaveReturnRight = fftConv(audioOverlap,h(:,2));
+    output(:,1) = overlapSaveReturnLeft(convBlocksize-blockSize+1:convBlocksize,:);
+    output(:,2) = overlapSaveReturnRight(convBlocksize-blockSize+1:convBlocksize,:);
     
     % pause to allow parallel functions to work
     pause(0.001)
