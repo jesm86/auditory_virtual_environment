@@ -1,12 +1,18 @@
-function interpolatedValue = interpolateN(elevationX, azimuthY, hrtf, targetElevation, targetAzimuth)
-    % Perform linear interpolation for a given point in 2D space
+function finalInterHrtf = interpolateN(Vhrtf1, Vhrtf2, eleValues, azimuthVecLEL, azimuthVecHEL,targetEleva,targetAzimtuh)
+    % Interpolate with respect to the azimuVhrtf1ths in low and high elevation
+    % low eleveation: interpltargetElevaVectorating the low and hiogh azimuths of the low 
+% azimuthVecLEL = [5,10];
+% azimuthVecHEL =[6, 12];
 
-    % Check if the target point is within the range of the provided data
-    if targetElevation < min(elevationX) || targetElevation > max(elevationX) || ...
-       targetAzimuth < min(azimuthY) || targetAzimuth > max(azimuthY)
-        error('Target point is outside the range of provided data.');
-    end
+% ELEVATION 
+    tempInterpolationLowE = interp1(azimuthVecLEL,Vhrtf1,targetAzimtuh);
+        % high eleveation: interplating the low and hiogh azimuths of the
+        % high
+    % ELEVATION 
+    tempInterpolationHighE = interp1(azimuthVecHEL,Vhrtf2,targetAzimtuh);
 
-    % Perform linear interpolation for the target point
-    interpolatedValue = interp2(elevationX, azimuthY, hrtf, targetElevation, targetAzimuth, 'linear');
-end
+    tempVect =[tempInterpolationHighE,tempInterpolationLowE];
+
+    
+    finalInterHrtf = interp1( [eleValues(1), eleValues(2)], tempVect, targetEleva);
+  end

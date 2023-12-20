@@ -9,8 +9,8 @@ audioOverlap = [audioOverlap(blockSize+1:end);input];
 
 % Perform fast convolution on current block 
 overlapSaveReturnLeft = fftConv(audioOverlap,h(:,1));
-overlapSaveReturnRight = fftConv(audioOverlap,h(:,1));%2));
-output(:,1)= overlapSaveReturnLeft(convBlocksize-blockSize+1:convBlocksize,:);
-output(:,2) = overlapSaveReturnRight(convBlocksize-blockSize+1:convBlocksize,:);
+%overlapSaveReturnRight = fftConv(audioOverlap,h(:,2));
+output = overlapSaveReturnLeft(convBlocksize-blockSize+1:convBlocksize,:);
+%output(:,2) = overlapSaveReturnRight(convBlocksize-blockSize+1:convBlocksize,:);
 
 end

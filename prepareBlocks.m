@@ -5,6 +5,6 @@ convBlocksize=blockSize+length(h)-1;
 overlapVector = zeros(convBlocksize,1);
 
 % preallocate output
-outputVector = zeros(blockSize,2);
+outputVector = zeros(blockSize,1);
 end
 

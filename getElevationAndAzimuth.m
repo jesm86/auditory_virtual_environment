@@ -1,4 +1,4 @@
-function [AzimuthInDegrees, ElevationInDegrees] = getAzimuthAndElevation(sourceCoord, receiverCoord, directionFacing)
+function [ElevationInDegrees, AzimuthInDegrees] = getElevationAndAzimuth(sourceCoord, receiverCoord, directionFacing)
     % source and receiver are 3D coordinates [x, y, z]
     % receiverFacing is the facing direction of the receiver [x, y, z]
     % returns Elevation angle (-90,90)
