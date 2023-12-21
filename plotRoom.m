@@ -1,3 +1,21 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% IE7-CJ2 WS2023 - Design, Implementation and Evaluation of an Auditory Virtual Environment
+% Team 2 - J. Harms, T. Warnakulasooriya, L.Gildenstern, J. Smith
+% 
+% -------------------------------------------------------------------------------------
+%  Module: plotRoom.m
+%
+%   This module plots the 3d room (cuboid) together with the source and
+%   receiver. 
+%
+%  Version      Date                Author                  Comment
+% -------------------------------------------------------------------------
+%   1.0             20.11.23    J.Smith                     based on plotImageSources.m module
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
 function plotRoom(roomDimensions, receiverCoord, sourceCoord, axis)
 
 % Plot initial 3d room
@@ -8,10 +26,6 @@ Z = [0; 0; 0; 0; 0];
 hold(axis, 'on');
 plot3(axis, X, Y, Z, 'k', 'LineWidth', 1.5);  
 plot3(axis, X, Y, Z + roomDimensions(3), 'k', 'LineWidth', 1.5); 
-
-% Set initial the azimuth and elevation of the plot
-%set(axis, gca, 'View', [-28, 35]);
- %view(axis, [-28, 35]); 
 
 Lx = roomDimensions(1);
 Ly = roomDimensions(2);

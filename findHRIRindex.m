@@ -1,3 +1,35 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% IE7-CJ2 WS2023 - Design, Implementation and Evaluation of an Auditory Virtual Environment
+% Team 2 - J. Harms, T. Warnakulasooriya, L.Gildenstern, J. Smith
+% 
+% -------------------------------------------------------------------------------------
+%  Module: findHRIRindex.m
+%
+%   Given an elevation and azimuth angle, this function calculates the
+%   necessary indices for accessing the correct HRIR by MIT corresponding to the actual values.
+%   When the fullset of HRIR is read and saved into the matlab project, the
+%   ordering will always be the same. Since Matlab ordered the folders
+%   according to their folder name ("-" is put in front of numeric
+%   symbols), the ordering and indexing will be as follows (w.r.t. the elevation): -10,
+%   -20, -30, -40, 0, 10, 20, 30, 40, 50, 60, 70, 80, 90.
+%   With increasing absolute value of the elevation, the azimuth step size,
+%   for which HRIR are provided increases. A special case is the absolut
+%   azimuth value of 40. The stepsize is alternating between 6 und 7. This
+%   problem has been solved by hardcoding the indices in these cases and
+%   then comparing inside a while loop. In the end the indices and the
+%   interval bounderies where the actual elevation and azimuth lies in are
+%   returned. Naming convention: lEhAindex: low Elevation high Azimuth
+%   index in the saved HRIRset. The naming may be subject to later changes.
+%
+%
+%  Version      Date                Author                  Comment
+% -------------------------------------------------------------------------
+%   1.0             19.12.23    J.Smith                      initial version  
+%   1.1             20.11.23    J.Smith                      added missing assignments inside loops
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 function [lEindex, hEindex, lElAindex, lEhAindex, hElAindex, hEhAindex, eValues, aValues] = findHRIRindex(elevation, azimuth)
     % Elevation indexing
     if (-40 >= elevation)
@@ -12,8 +44,8 @@ function [lEindex, hEindex, lElAindex, lEhAindex, hElAindex, hEhAindex, eValues,
         if azimuth >= azimuthPattern(end)
             lElAindex = length(azimuthPattern);
             lEhAindex = length(azimuthPattern);
-            hElAindex = length(azimuthPattern);  % Additional variable
-            hEhAindex = length(azimuthPattern);  % Additional variable
+            hElAindex = length(azimuthPattern);  
+            hEhAindex = length(azimuthPattern);  
             aValues(1) = 354;
             aValues(2) = 354;
             aValues(3) = 345;
