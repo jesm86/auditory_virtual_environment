@@ -290,5 +290,3 @@ function [lEindex, hEindex, lElAindex, lEhAindex, hElAindex, hEhAindex, eValues,
         aValues(4) = 0;
     end
 
-
-gitend
