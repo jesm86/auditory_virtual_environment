@@ -41,7 +41,7 @@ plot3(axis, X, Y, Z, 'k', 'LineWidth', 1.5);
 plot3(axis, X, Y, Z + roomDimensions(3), 'k', 'LineWidth', 1.5); 
 
 % Set initial the azimuth and elevation of the plot
-set(axis, gca, 'View', [-28, 35]); 
+%set(axis, gca, 'View', [-28, 35]); 
 Lx = roomDimensions(1);
 Ly = roomDimensions(2);
 Lz = roomDimensions(3);
