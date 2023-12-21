@@ -1,62 +1,64 @@
+%% GUI starting point of the project. Not yet properly commented because constantly changing. 
+% Please read readme.txt For short introduction.
+
 classdef GUI < matlab.apps.AppBase
 
     % Properties that correspond to app components
     properties (Access = public)
-        UIFigure                    matlab.ui.Figure
-        RecordSpatializationButton  matlab.ui.control.Button
-        ResampleHRIRsetButton       matlab.ui.control.Button
-        TabGroup                    matlab.ui.container.TabGroup
-        PlotsTab                    matlab.ui.container.Tab
-        FreqDomainAxes              matlab.ui.control.UIAxes
-        FreqDomainAxes_2            matlab.ui.control.UIAxes
-        TimeDomainAxes_2            matlab.ui.control.UIAxes
-        TimeDomainAxes              matlab.ui.control.UIAxes
-        RoomTab                     matlab.ui.container.Tab
-        ReceiverXField              matlab.ui.control.NumericEditField
-        ReceiverYField              matlab.ui.control.NumericEditField
-        YLabel_2                    matlab.ui.control.Label
-        ReceiverZField              matlab.ui.control.NumericEditField
-        ZLabel_2                    matlab.ui.control.Label
-        XEditFieldLabel_2           matlab.ui.control.Label
-        SourceXField                matlab.ui.control.NumericEditField
-        SourceYField                matlab.ui.control.NumericEditField
-        YLabel                      matlab.ui.control.Label
-        SourceZField                matlab.ui.control.NumericEditField
-        ZLabel                      matlab.ui.control.Label
-        XEditFieldLabel             matlab.ui.control.Label
-        KeystrokesButton            matlab.ui.control.Button
-        ReceiverLabel               matlab.ui.control.Label
-        SourceLabel                 matlab.ui.control.Label
-        ApplyButton                 matlab.ui.control.Button
-        RTPlot                      matlab.ui.control.UIAxes
-        ButtonLoadHRIR              matlab.ui.control.Button
-        RTButtonConv                matlab.ui.control.Button
-        RTButtonStartStop           matlab.ui.control.Button
-        ShowraytracesCheckBox       matlab.ui.control.CheckBox
-        PlotimagesourcesCheckBox    matlab.ui.control.CheckBox
-        Render                      matlab.ui.control.Button
-        ResampleIR                  matlab.ui.control.Button
-        ResampleInput               matlab.ui.control.Button
-        BlocksizeEditField          matlab.ui.control.NumericEditField
-        BlocksizeLabel              matlab.ui.control.Label
-        ConvolutionTimeField        matlab.ui.control.EditField
-        InputDropDown_3             matlab.ui.control.DropDown
-        ConvolutiontypeLabel        matlab.ui.control.Label
-        ConvolutionField            matlab.ui.control.EditField
-        InputDropDown_2             matlab.ui.control.DropDown
-        Inputsource2Label           matlab.ui.control.Label
-        ReadAudioField_2            matlab.ui.control.EditField
-        ConvolutionButton           matlab.ui.control.Button
-        ReadAudioButton_2           matlab.ui.control.Button
-        StartStopRecordingButton    matlab.ui.control.Button
-        WriteAudioField             matlab.ui.control.EditField
-        ReadAudioField              matlab.ui.control.EditField
-        WriteAudioButton            matlab.ui.control.Button
-        ReadAudioButton             matlab.ui.control.Button
-        OutputDropDown              matlab.ui.control.DropDown
-        OutputDropDownLabel         matlab.ui.control.Label
-        InputDropDown               matlab.ui.control.DropDown
-        InputsourceDropDownLabel    matlab.ui.control.Label
+        UIFigure                      matlab.ui.Figure
+        RecordRTSpatializationButton  matlab.ui.control.Button
+        ResampleHRIRsetButton         matlab.ui.control.Button
+        TabGroup                      matlab.ui.container.TabGroup
+        PlotsTab                      matlab.ui.container.Tab
+        FreqDomainAxes                matlab.ui.control.UIAxes
+        FreqDomainAxes_2              matlab.ui.control.UIAxes
+        TimeDomainAxes_2              matlab.ui.control.UIAxes
+        TimeDomainAxes                matlab.ui.control.UIAxes
+        RoomTab                       matlab.ui.container.Tab
+        ReceiverXField                matlab.ui.control.NumericEditField
+        ReceiverYField                matlab.ui.control.NumericEditField
+        YLabel_2                      matlab.ui.control.Label
+        ReceiverZField                matlab.ui.control.NumericEditField
+        ZLabel_2                      matlab.ui.control.Label
+        XEditFieldLabel_2             matlab.ui.control.Label
+        SourceXField                  matlab.ui.control.NumericEditField
+        SourceYField                  matlab.ui.control.NumericEditField
+        YLabel                        matlab.ui.control.Label
+        SourceZField                  matlab.ui.control.NumericEditField
+        ZLabel                        matlab.ui.control.Label
+        GITLabel                      matlab.ui.control.Label
+        KeystrokesButton              matlab.ui.control.Button
+        ReceiverLabel                 matlab.ui.control.Label
+        SourceLabel                   matlab.ui.control.Label
+        ApplyButton                   matlab.ui.control.Button
+        RTPlot                        matlab.ui.control.UIAxes
+        ButtonLoadHRIR                matlab.ui.control.Button
+        RTButtonConv                  matlab.ui.control.Button
+        RTButtonStartStop             matlab.ui.control.Button
+        ShowraytracesCheckBox         matlab.ui.control.CheckBox
+        PlotimagesourcesCheckBox      matlab.ui.control.CheckBox
+        Render                        matlab.ui.control.Button
+        ResampleIR                    matlab.ui.control.Button
+        ResampleInput                 matlab.ui.control.Button
+        BlocksizeEditField            matlab.ui.control.NumericEditField
+        BlocksizeLabel                matlab.ui.control.Label
+        ConvolutionTimeField          matlab.ui.control.EditField
+        InputDropDown_3               matlab.ui.control.DropDown
+        ConvolutionField              matlab.ui.control.EditField
+        InputDropDown_2               matlab.ui.control.DropDown
+        Inputsource2Label             matlab.ui.control.Label
+        ReadAudioField_2              matlab.ui.control.EditField
+        ConvolutionButton             matlab.ui.control.Button
+        ReadAudioButton_2             matlab.ui.control.Button
+        StartStopRecordingButton      matlab.ui.control.Button
+        WriteAudioField               matlab.ui.control.EditField
+        ReadAudioField                matlab.ui.control.EditField
+        WriteAudioButton              matlab.ui.control.Button
+        ReadAudioButton               matlab.ui.control.Button
+        OutputDropDown                matlab.ui.control.DropDown
+        OutputDropDownLabel           matlab.ui.control.Label
+        InputDropDown                 matlab.ui.control.DropDown
+        InputsourceDropDownLabel      matlab.ui.control.Label
     end
 
         properties (Access = private)
@@ -186,6 +188,11 @@ classdef GUI < matlab.apps.AppBase
                 app.WriteAudioButton.Visible = "on";
                 app.WriteAudioField.Visible = "on";
                 app.OutputDropDownLabel.Visible = "on";
+                app.InputDropDown_3.Visible = "on";
+                app.ConvolutionField.Visible = "on";
+                app.ConvolutionTimeField.Visible = "on";
+                app.RecordRTSpatializationButton.Visible = "off";
+                app.ConvolutionButton.Visible = "on";
             elseif "Audiofile" == app.InputDropDown.Value
                 app.StartStopRecordingButton.Visible = "off";
                 app.ReadAudioButton.Visible = "on";
@@ -197,6 +204,11 @@ classdef GUI < matlab.apps.AppBase
                 app.WriteAudioButton.Visible = "on";
                 app.WriteAudioField.Visible = "on";
                 app.OutputDropDownLabel.Visible = "on";
+                app.InputDropDown_3.Visible = "on";
+                app.ConvolutionField.Visible = "on";
+                app.ConvolutionTimeField.Visible = "on";
+                app.RecordRTSpatializationButton.Visible = "off";
+                app.ConvolutionButton.Visible = "on";
             elseif "Real-Time Microphone" == app.InputDropDown.Value
                 app.StartStopRecordingButton.Visible = "off";
                 app.ReadAudioButton.Visible = "off";
@@ -208,6 +220,11 @@ classdef GUI < matlab.apps.AppBase
                 app.WriteAudioButton.Visible = "off";
                 app.WriteAudioField.Visible = "off";
                 app.OutputDropDownLabel.Visible = "off";
+                app.InputDropDown_3.Visible = "off";
+                app.ConvolutionField.Visible = "off";
+                app.ConvolutionTimeField.Visible = "off";
+                app.RecordRTSpatializationButton.Visible = "on";
+                app.ConvolutionButton.Visible = "off";
             end
             app.ReadAudioField.Value = "";
             cla(app.TimeDomainAxes);
@@ -590,6 +607,7 @@ classdef GUI < matlab.apps.AppBase
         % Button pushed function: RTButtonStartStop
         function RTButtonStartStopPushed(app, event)
             app.boStopRTRecordingFlag = true;
+       
         end
 
         % Button pushed function: ApplyButton
@@ -639,12 +657,6 @@ classdef GUI < matlab.apps.AppBase
             else
                 app.boKeystrokeActive = false;
                 app.KeystrokesButton.Text = 'Keystrokes';
-                [app.impulseResponseData , imageSourceCoords, ~, ~]  = IRfromCuboid(app.Room_dimensions, app.Source, app.Receiver, app.t_reverb, app.Wallcoefs, app.F_s_2);
-                if app.PlotimagesourcesCheckBox.Value
-                    plotImageSources(app.Room_dimensions, app.Receiver, app.Source, imageSourceCoords, app.ShowraytracesCheckBox.Value, app.RTPlot);
-                end
-                computeFinalImpulseResponse(app);
-                app.RTPlot.Visible = "on";
             end
         end
 
@@ -652,14 +664,16 @@ classdef GUI < matlab.apps.AppBase
         function UIFigureKeyPress(app, event)
             if app.boKeystrokeActive
                 [app.Source, app.Receiver] = keystrokeCoordUpdate(app.Source, app.Receiver, app.Room_dimensions, event);
-                            [app.impulseResponseData, imageSourceCoords]  = IRfromCuboid(app.Room_dimensions, app.Source, app.Receiver, app.t_reverb, app.Wallcoefs, app.F_s_2);
-                            computeFinalImpulseResponse(app);
+                [app.impulseResponseData, imageSourceCoords]  = IRfromCuboid(app.Room_dimensions, app.Source, app.Receiver, app.t_reverb, app.Wallcoefs, app.F_s_2);
+                           
                 cla(app.RTPlot);
-                 if ~app.PlotimagesourcesCheckBox.Value
+                 if app.PlotimagesourcesCheckBox.Value
+                    plotImageSources(app.Room_dimensions, app.Receiver, app.Source, imageSourceCoords, app.ShowraytracesCheckBox.Value, app.RTPlot);
+                 else
                     plotRoom(app.Room_dimensions, app.Receiver, app.Source, app.RTPlot);
                  end
+                computeFinalImpulseResponse(app);
                 app.RTPlot.Visible = "on";
-                % end
             end
             
         end
@@ -685,12 +699,12 @@ classdef GUI < matlab.apps.AppBase
 
         % Value changed function: WriteAudioField
         function WriteAudioFieldValueChanged(app, event)
-            value = app.WriteAudioField.Value;
+
             
         end
 
-        % Button pushed function: RecordSpatializationButton
-        function RecordSpatializationButtonPushed(app, event)
+        % Button pushed function: RecordRTSpatializationButton
+        function RecordRTSpatializationButtonPushed(app, event)
             app.boStopRTRecordingFlag = false;
             app.playRec = audioPlayerRecorder(app.F_s_2);
             app.playRec.PlayerChannelMapping = [1, 2];
@@ -819,13 +833,6 @@ classdef GUI < matlab.apps.AppBase
             app.ConvolutionField = uieditfield(app.UIFigure, 'text');
             app.ConvolutionField.Position = [705 618 100 22];
 
-            % Create ConvolutiontypeLabel
-            app.ConvolutiontypeLabel = uilabel(app.UIFigure);
-            app.ConvolutiontypeLabel.HorizontalAlignment = 'right';
-            app.ConvolutiontypeLabel.FontWeight = 'bold';
-            app.ConvolutiontypeLabel.Position = [537 638 103 28];
-            app.ConvolutiontypeLabel.Text = 'Convolution';
-
             % Create InputDropDown_3
             app.InputDropDown_3 = uidropdown(app.UIFigure);
             app.InputDropDown_3.Items = {'Fast convolution', 'Overlap-Save FFT-Conv.', 'Time Domain Convolution'};
@@ -887,14 +894,14 @@ classdef GUI < matlab.apps.AppBase
             app.RTButtonStartStop.ButtonPushedFcn = createCallbackFcn(app, @RTButtonStartStopPushed, true);
             app.RTButtonStartStop.Visible = 'off';
             app.RTButtonStartStop.Position = [139 622 100 23];
-            app.RTButtonStartStop.Text = 'Start / Stop';
+            app.RTButtonStartStop.Text = 'Stop';
 
             % Create RTButtonConv
             app.RTButtonConv = uibutton(app.UIFigure, 'push');
             app.RTButtonConv.ButtonPushedFcn = createCallbackFcn(app, @RTButtonConvPushed, true);
             app.RTButtonConv.Visible = 'off';
-            app.RTButtonConv.Position = [537 575 137 23];
-            app.RTButtonConv.Text = 'Real-Time Convolution';
+            app.RTButtonConv.Position = [258 507 145 23];
+            app.RTButtonConv.Text = 'Real-Time Spatialization';
 
             % Create ButtonLoadHRIR
             app.ButtonLoadHRIR = uibutton(app.UIFigure, 'push');
@@ -968,7 +975,7 @@ classdef GUI < matlab.apps.AppBase
             % Create ApplyButton
             app.ApplyButton = uibutton(app.RoomTab, 'push');
             app.ApplyButton.ButtonPushedFcn = createCallbackFcn(app, @ApplyButtonPushed, true);
-            app.ApplyButton.Position = [441 360 100 23];
+            app.ApplyButton.Position = [471 361 100 23];
             app.ApplyButton.Text = 'Apply';
 
             % Create SourceLabel
@@ -978,7 +985,7 @@ classdef GUI < matlab.apps.AppBase
 
             % Create ReceiverLabel
             app.ReceiverLabel = uilabel(app.RoomTab);
-            app.ReceiverLabel.Position = [212 361 56 22];
+            app.ReceiverLabel.Position = [235 361 56 22];
             app.ReceiverLabel.Text = 'Receiver:';
 
             % Create KeystrokesButton
@@ -987,77 +994,78 @@ classdef GUI < matlab.apps.AppBase
             app.KeystrokesButton.Position = [705 360 100 23];
             app.KeystrokesButton.Text = 'Keystrokes';
 
-            % Create XEditFieldLabel
-            app.XEditFieldLabel = uilabel(app.RoomTab);
-            app.XEditFieldLabel.HorizontalAlignment = 'right';
-            app.XEditFieldLabel.Position = [60 361 13 22];
-            app.XEditFieldLabel.Text = 'X';
+            % Create GITLabel
+            app.GITLabel = uilabel(app.RoomTab);
+            app.GITLabel.HorizontalAlignment = 'right';
+            app.GITLabel.Position = [48 361 25 22];
+            app.GITLabel.Text = 'X';
 
             % Create ZLabel
             app.ZLabel = uilabel(app.RoomTab);
             app.ZLabel.HorizontalAlignment = 'right';
-            app.ZLabel.Position = [129 361 25 22];
+            app.ZLabel.Position = [150 361 25 22];
             app.ZLabel.Text = 'Z';
 
             % Create SourceZField
             app.SourceZField = uieditfield(app.RoomTab, 'numeric');
-            app.SourceZField.Position = [158 361 23 22];
+            app.SourceZField.Position = [179 361 35 22];
 
             % Create YLabel
             app.YLabel = uilabel(app.RoomTab);
             app.YLabel.HorizontalAlignment = 'right';
-            app.YLabel.Position = [88 361 25 22];
+            app.YLabel.Position = [99 361 25 22];
             app.YLabel.Text = 'Y';
 
             % Create SourceYField
             app.SourceYField = uieditfield(app.RoomTab, 'numeric');
-            app.SourceYField.Position = [117 361 23 22];
+            app.SourceYField.Position = [128 361 35 22];
 
             % Create SourceXField
             app.SourceXField = uieditfield(app.RoomTab, 'numeric');
-            app.SourceXField.Position = [77 361 23 22];
+            app.SourceXField.Position = [77 361 35 22];
 
             % Create XEditFieldLabel_2
             app.XEditFieldLabel_2 = uilabel(app.RoomTab);
             app.XEditFieldLabel_2.HorizontalAlignment = 'right';
-            app.XEditFieldLabel_2.Position = [273 361 13 22];
+            app.XEditFieldLabel_2.Position = [296 361 13 22];
             app.XEditFieldLabel_2.Text = 'X';
 
             % Create ZLabel_2
             app.ZLabel_2 = uilabel(app.RoomTab);
             app.ZLabel_2.HorizontalAlignment = 'right';
-            app.ZLabel_2.Position = [342 361 25 22];
+            app.ZLabel_2.Position = [386 361 25 22];
             app.ZLabel_2.Text = 'Z';
 
             % Create ReceiverZField
             app.ReceiverZField = uieditfield(app.RoomTab, 'numeric');
-            app.ReceiverZField.Position = [371 361 23 22];
+            app.ReceiverZField.Position = [415 361 35 22];
 
             % Create YLabel_2
             app.YLabel_2 = uilabel(app.RoomTab);
             app.YLabel_2.HorizontalAlignment = 'right';
-            app.YLabel_2.Position = [301 361 25 22];
+            app.YLabel_2.Position = [335 361 25 22];
             app.YLabel_2.Text = 'Y';
 
             % Create ReceiverYField
             app.ReceiverYField = uieditfield(app.RoomTab, 'numeric');
-            app.ReceiverYField.Position = [330 361 23 22];
+            app.ReceiverYField.Position = [364 361 35 22];
 
             % Create ReceiverXField
             app.ReceiverXField = uieditfield(app.RoomTab, 'numeric');
-            app.ReceiverXField.Position = [290 361 23 22];
+            app.ReceiverXField.Position = [313 361 35 22];
 
             % Create ResampleHRIRsetButton
             app.ResampleHRIRsetButton = uibutton(app.UIFigure, 'push');
             app.ResampleHRIRsetButton.ButtonPushedFcn = createCallbackFcn(app, @ResampleHRIRsetButtonPushed, true);
-            app.ResampleHRIRsetButton.Position = [136 507 121 23];
+            app.ResampleHRIRsetButton.Position = [134 507 121 23];
             app.ResampleHRIRsetButton.Text = 'Resample HIRR set';
 
-            % Create RecordSpatializationButton
-            app.RecordSpatializationButton = uibutton(app.UIFigure, 'push');
-            app.RecordSpatializationButton.ButtonPushedFcn = createCallbackFcn(app, @RecordSpatializationButtonPushed, true);
-            app.RecordSpatializationButton.Position = [288 507 128 23];
-            app.RecordSpatializationButton.Text = 'Record Spatialization';
+            % Create RecordRTSpatializationButton
+            app.RecordRTSpatializationButton = uibutton(app.UIFigure, 'push');
+            app.RecordRTSpatializationButton.ButtonPushedFcn = createCallbackFcn(app, @RecordRTSpatializationButtonPushed, true);
+            app.RecordRTSpatializationButton.Visible = 'off';
+            app.RecordRTSpatializationButton.Position = [401 507 147 23];
+            app.RecordRTSpatializationButton.Text = 'Record RT Spatialization';
 
             % Show the figure after all components are created
             app.UIFigure.Visible = 'on';
