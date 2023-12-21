@@ -14,6 +14,10 @@ function [lEindex, hEindex, lElAindex, lEhAindex, hElAindex, hEhAindex, eValues,
             lEhAindex = length(azimuthPattern);
             hElAindex = length(azimuthPattern);  % Additional variable
             hEhAindex = length(azimuthPattern);  % Additional variable
+            aValues(1) = 354;
+            aValues(2) = 354;
+            aValues(3) = 345;
+            aValues(4) = 345;
         else
             for index = 1:length(azimuthPattern)-1
                 if (azimuth >= azimuthPattern(index)) && (azimuth < azimuthPattern(index + 1))
@@ -45,6 +49,8 @@ function [lEindex, hEindex, lElAindex, lEhAindex, hElAindex, hEhAindex, eValues,
         if azimuth >= azimuthPattern(end)
             lElAindex = length(azimuthPattern);
             lEhAindex = length(azimuthPattern);
+            aValues(1) = 354;
+            aValues(2) = 354;
         else
             for index = 1:length(azimuthPattern)-1
                 if (azimuth >= azimuthPattern(index)) && (azimuth < azimuthPattern(index + 1))
@@ -59,7 +65,6 @@ function [lEindex, hEindex, lElAindex, lEhAindex, hElAindex, hEhAindex, eValues,
 
         hElAindex = floor(azimuth / 6) + 1;
         hEhAindex = hElAindex + 1;
-a <
         eValues(1) = -40;
         eValues(2) = -30;
         aValues(3) = (hElAindex - 1) * 6;
@@ -162,6 +167,8 @@ a <
         if azimuth >= azimuthPattern(end)
             hElAindex = length(azimuthPattern);
             hEhAindex = length(azimuthPattern);
+            aValues(3) = 354;
+            aValues(4) = 354;
         else
             for index = 1:length(azimuthPattern)-1
                 if (azimuth >= azimuthPattern(index)) && (azimuth < azimuthPattern(index + 1))
@@ -190,6 +197,8 @@ a <
         if azimuth >= azimuthPattern(end)
             lElAindex = length(azimuthPattern);
             lEhAindex = length(azimuthPattern);
+            aValues(1) = 354;
+            aValues(2) = 354;
         else
             for index = 1:length(azimuthPattern)-1
                 if (azimuth >= azimuthPattern(index)) && (azimuth < azimuthPattern(index + 1))
@@ -282,4 +291,4 @@ a <
     end
 
 
-end
+gitend
