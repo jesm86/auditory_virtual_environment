@@ -5,14 +5,25 @@ function finalInterHrtf = interpolateN(Vhrtf1, Vhrtf2, eleValues, azimuthVecLEL,
 % azimuthVecHEL =[6, 12];
 
 % ELEVATION 
+if azimuthVecLEL(1) ~= azimuthVecLEL(2)
     tempInterpolationLowE = interp1(azimuthVecLEL,Vhrtf1,targetAzimtuh);
+else
+    tempInterpolationLowE = Vhrtf1(1);
+end
         % high eleveation: interplating the low and hiogh azimuths of the
         % high
     % ELEVATION 
-    tempInterpolationHighE = interp1(azimuthVecHEL,Vhrtf2,targetAzimtuh);
-
+    if azimuthVecHEL(1) ~= azimuthVecHEL(2)
+        tempInterpolationHighE = interp1(azimuthVecHEL,Vhrtf2,targetAzimtuh);
+    else
+        tempInterpolationHighE = Vhrtf2(1);
+    end
+    
     tempVect =[tempInterpolationHighE,tempInterpolationLowE];
 
-    
-    finalInterHrtf = interp1( [eleValues(1), eleValues(2)], tempVect, targetEleva);
+    if eleValues(1) ~= eleValues(2)
+        finalInterHrtf = interp1( [eleValues(1), eleValues(2)], tempVect, targetEleva);
+    else
+        finalInterHrtf = tempVect(1);
+    end
   end

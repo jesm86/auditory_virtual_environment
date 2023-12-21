@@ -2,53 +2,114 @@ classdef GUI < matlab.apps.AppBase
 
     % Properties that correspond to app components
     properties (Access = public)
-        UIFigure                  matlab.ui.Figure
-        ButtonLoadHRIR            matlab.ui.control.Button
-        RTButtonConv              matlab.ui.control.Button
-        RTButtonStartStop         matlab.ui.control.Button
-        ShowraytracesCheckBox     matlab.ui.control.CheckBox
-        PlotimagesourcesCheckBox  matlab.ui.control.CheckBox
-        Render                    matlab.ui.control.Button
-        ResampleIR                matlab.ui.control.Button
-        ResampleInput             matlab.ui.control.Button
-        BlocksizeEditField        matlab.ui.control.NumericEditField
-        BlocksizeLabel            matlab.ui.control.Label
-        ConvolutionTimeField      matlab.ui.control.EditField
-        InputDropDown_3           matlab.ui.control.DropDown
-        ConvolutiontypeLabel      matlab.ui.control.Label
-        ConvolutionField          matlab.ui.control.EditField
-        InputDropDown_2           matlab.ui.control.DropDown
-        Inputsource2Label         matlab.ui.control.Label
-        ReadAudioField_2          matlab.ui.control.EditField
-        ReadAudioButton_2         matlab.ui.control.Button
-        ConvolutionButton         matlab.ui.control.Button
-        StartStopRecordingButton  matlab.ui.control.Button
-        WriteAudioField           matlab.ui.control.EditField
-        ReadAudioField            matlab.ui.control.EditField
-        WriteAudioButton          matlab.ui.control.Button
-        ReadAudioButton           matlab.ui.control.Button
-        OutputDropDown            matlab.ui.control.DropDown
-        OutputDropDownLabel       matlab.ui.control.Label
-        InputDropDown             matlab.ui.control.DropDown
-        InputsourceDropDownLabel  matlab.ui.control.Label
-        FreqDomainAxes_2          matlab.ui.control.UIAxes
-        TimeDomainAxes_2          matlab.ui.control.UIAxes
-        FreqDomainAxes            matlab.ui.control.UIAxes
-        TimeDomainAxes            matlab.ui.control.UIAxes
+        UIFigure                    matlab.ui.Figure
+        RecordSpatializationButton  matlab.ui.control.Button
+        ResampleHRIRsetButton       matlab.ui.control.Button
+        TabGroup                    matlab.ui.container.TabGroup
+        PlotsTab                    matlab.ui.container.Tab
+        FreqDomainAxes              matlab.ui.control.UIAxes
+        FreqDomainAxes_2            matlab.ui.control.UIAxes
+        TimeDomainAxes_2            matlab.ui.control.UIAxes
+        TimeDomainAxes              matlab.ui.control.UIAxes
+        RoomTab                     matlab.ui.container.Tab
+        ReceiverXField              matlab.ui.control.NumericEditField
+        ReceiverYField              matlab.ui.control.NumericEditField
+        YLabel_2                    matlab.ui.control.Label
+        ReceiverZField              matlab.ui.control.NumericEditField
+        ZLabel_2                    matlab.ui.control.Label
+        XEditFieldLabel_2           matlab.ui.control.Label
+        SourceXField                matlab.ui.control.NumericEditField
+        SourceYField                matlab.ui.control.NumericEditField
+        YLabel                      matlab.ui.control.Label
+        SourceZField                matlab.ui.control.NumericEditField
+        ZLabel                      matlab.ui.control.Label
+        XEditFieldLabel             matlab.ui.control.Label
+        KeystrokesButton            matlab.ui.control.Button
+        ReceiverLabel               matlab.ui.control.Label
+        SourceLabel                 matlab.ui.control.Label
+        ApplyButton                 matlab.ui.control.Button
+        RTPlot                      matlab.ui.control.UIAxes
+        ButtonLoadHRIR              matlab.ui.control.Button
+        RTButtonConv                matlab.ui.control.Button
+        RTButtonStartStop           matlab.ui.control.Button
+        ShowraytracesCheckBox       matlab.ui.control.CheckBox
+        PlotimagesourcesCheckBox    matlab.ui.control.CheckBox
+        Render                      matlab.ui.control.Button
+        ResampleIR                  matlab.ui.control.Button
+        ResampleInput               matlab.ui.control.Button
+        BlocksizeEditField          matlab.ui.control.NumericEditField
+        BlocksizeLabel              matlab.ui.control.Label
+        ConvolutionTimeField        matlab.ui.control.EditField
+        InputDropDown_3             matlab.ui.control.DropDown
+        ConvolutiontypeLabel        matlab.ui.control.Label
+        ConvolutionField            matlab.ui.control.EditField
+        InputDropDown_2             matlab.ui.control.DropDown
+        Inputsource2Label           matlab.ui.control.Label
+        ReadAudioField_2            matlab.ui.control.EditField
+        ConvolutionButton           matlab.ui.control.Button
+        ReadAudioButton_2           matlab.ui.control.Button
+        StartStopRecordingButton    matlab.ui.control.Button
+        WriteAudioField             matlab.ui.control.EditField
+        ReadAudioField              matlab.ui.control.EditField
+        WriteAudioButton            matlab.ui.control.Button
+        ReadAudioButton             matlab.ui.control.Button
+        OutputDropDown              matlab.ui.control.DropDown
+        OutputDropDownLabel         matlab.ui.control.Label
+        InputDropDown               matlab.ui.control.DropDown
+        InputsourceDropDownLabel    matlab.ui.control.Label
     end
 
         properties (Access = private)
         audioData                                       % vector with audiodata of input source (mic or file)
-        F_s                                                 % sampling frequency of input data
+        F_s = 16000;                                    % sampling frequency of input data
         impulseResponseData                   % vector with data of impulse response 
-        F_s_2                                             % sampling frequency of impulse response
+        F_s_2 = 16000;                               % sampling frequency of impulse response
+        hrir_fullset                                      % full set of HRIR provided by MIT
+        current_hrir_left;                              % current pair of HRIR (1: left ear, 2: right ear)
+        current_hrir_right;
         convolvedSignalData                     % result of convolution of input & impulse response
+        convolvedSignalData_left
+        convolvedSignalData_right
         F_s_3                                             % sampling frequency of result
         boRecordingFlag1 = false;             % boolean indicating if system is recording
-        recorder = audiorecorder(44100, 16, 1); % Object of class audiorecorder for recording audio
+        recorder = audiorecorder(16000, 16, 1); % Object of class audiorecorder for recording audio
                                                                         % with microphone. Sampling rate will be 44,1kHz
                                                                         % 16 bit quantization and 1 channel
-        hrir_set,                                                   % Full set of loaded HRIR by MIT
+        hrir_set;                                                   % Full set of loaded HRIR by MIT
+        Wallcoefs;                                               % Wall coefficients
+        Room_dimensions;                                 % Room dimensions
+        Source;                                                   % Source room coordinates
+        Receiver;                                                % Receiver room coordinates
+        facingDirection;
+        currentPosAngles;                                  % current positional angles (1: elevation angle, 2: azimuth angle)
+        boStopRTRecordingFlag = false;
+        t_reverb;
+        roomType;
+        boKeystrokeActive = false;
+        boResampledHrirFlag = false;
+        playRec;
+    end
+    
+    methods (Access = private)
+        
+        function computeFinalImpulseResponse(app)
+            if isempty(app.facingDirection)
+                app.facingDirection = [1, 0, 0];
+            end
+            [app.currentPosAngles(1), app.currentPosAngles(2)] = getElevationAndAzimuth(app.Source, app.Receiver, app.facingDirection);
+            [elevationIndices(1), elevationIndices(2), azimuthIndices(1,1), azimuthIndices(1,2), azimuthIndices(1,3), azimuthIndices(1,4), elevalues, azimvalues(1,:)] = findHRIRindex(app.currentPosAngles(1), app.currentPosAngles(2));
+            [~, ~, azimuthIndices(2,1), azimuthIndices(2,2), azimuthIndices(2,3), azimuthIndices(2,4), ~, azimvalues(2,:)] = findHRIRindex(app.currentPosAngles(1), (360 - app.currentPosAngles(2)));            
+            for i = 1:floor((512/(44100/app.F_s_2)))
+                app.current_hrir_left(i) = interpolateN([app.hrir_fullset{elevationIndices(1)}{azimuthIndices(1,1)}(i), app.hrir_fullset{elevationIndices(1)}{azimuthIndices(1,2)}(i)],...
+                                                                      [app.hrir_fullset{elevationIndices(2)}{azimuthIndices(1,3)}(i), app.hrir_fullset{elevationIndices(2)}{azimuthIndices(1,4)}(i)],...
+                                                                      [elevalues(1), elevalues(2)],[azimvalues(1,1), azimvalues(1,2)], [azimvalues(1,3), azimvalues(1,4)], app.currentPosAngles(1), app.currentPosAngles(2));
+                app.current_hrir_right(i) = interpolateN([app.hrir_fullset{elevationIndices(1)}{azimuthIndices(2,1)}(i), app.hrir_fullset{elevationIndices(1)}{azimuthIndices(2,2)}(i)],...
+                                                                      [app.hrir_fullset{elevationIndices(2)}{azimuthIndices(2,3)}(i), app.hrir_fullset{elevationIndices(2)}{azimuthIndices(2,4)}(i)],...
+                                                                      [elevalues(1), elevalues(2)],[azimvalues(2,1), azimvalues(2,2)], [azimvalues(3), azimvalues(2,4)], app.currentPosAngles(1), (360 - app.currentPosAngles(2)));
+            end 
+            app.convolvedSignalData_left  =    transpose(app.current_hrir_left);
+            app.convolvedSignalData_right =    transpose(app.current_hrir_right);
+        end
     end
     
 
@@ -116,37 +177,37 @@ classdef GUI < matlab.apps.AppBase
             % on drop down menu
             if "Microphone" == app.InputDropDown.Value
                 app.StartStopRecordingButton.Visible = "on";
-                app.ReadAudioButton.Visible = "off";
-                app.TimeDomainAxes.Visible = "on";
-                app.TimeDomainAxes_2.Visible = "on";
-                app.FreqDomainAxes.Visible = "on";
-                app.FreqDomainAxes_2.Visible = "on";
+                app.ReadAudioButton.Visible = "off"; 
                 app.ResampleInput.Visible = "on";
                 app.RTButtonStartStop.Visible = "off";
                 app.InputDropDown_3.Visible = "on";
                 app.RTButtonConv.Visible = "off";
+                app.OutputDropDown.Visible = "on";
+                app.WriteAudioButton.Visible = "on";
+                app.WriteAudioField.Visible = "on";
+                app.OutputDropDownLabel.Visible = "on";
             elseif "Audiofile" == app.InputDropDown.Value
                 app.StartStopRecordingButton.Visible = "off";
                 app.ReadAudioButton.Visible = "on";
-                app.TimeDomainAxes.Visible = "on";
-                app.TimeDomainAxes_2.Visible = "on";
-                app.FreqDomainAxes.Visible = "on";
-                app.FreqDomainAxes_2.Visible = "on";
                 app.ResampleInput.Visible = "on";
                 app.RTButtonStartStop.Visible = "off";
                 app.InputDropDown_3.Visible = "on";
                 app.RTButtonConv.Visible = "off";
+                app.OutputDropDown.Visible = "on";
+                app.WriteAudioButton.Visible = "on";
+                app.WriteAudioField.Visible = "on";
+                app.OutputDropDownLabel.Visible = "on";
             elseif "Real-Time Microphone" == app.InputDropDown.Value
                 app.StartStopRecordingButton.Visible = "off";
                 app.ReadAudioButton.Visible = "off";
-                app.TimeDomainAxes.Visible = "off";
-                app.TimeDomainAxes_2.Visible = "off";
-                app.FreqDomainAxes.Visible = "off";
-                app.FreqDomainAxes_2.Visible = "off";
                 app.ResampleInput.Visible = "off";
                 app.RTButtonStartStop.Visible = "on";         
                 app.InputDropDown_3.Visible = "off";
                 app.RTButtonConv.Visible = "on";
+                app.OutputDropDown.Visible = "off";
+                app.WriteAudioButton.Visible = "off";
+                app.WriteAudioField.Visible = "off";
+                app.OutputDropDownLabel.Visible = "off";
             end
             app.ReadAudioField.Value = "";
             cla(app.TimeDomainAxes);
@@ -166,7 +227,7 @@ classdef GUI < matlab.apps.AppBase
             % flag to either start or stop recording procedure. Also plot
             % signal in time and frequency domain
             if false == app.boRecordingFlag1
-                app.F_s = 44100;
+                app.F_s = 16000;
                 app.boRecordingFlag1 = recordAudio(app.recorder, app.F_s, app.boRecordingFlag1);
                 app.ReadAudioField.Value = "recording...";                
             elseif true == app.boRecordingFlag1
@@ -380,66 +441,102 @@ classdef GUI < matlab.apps.AppBase
 
         % Button pushed function: Render
         function RenderButtonPushed(app, event)
-            % get room dimensions
-            promt = {"Room length:", "Room width:", "Room height:"};
-            title = "Enter room dimensions";
-            dims = [1 80];
-            defaultValues = {'', '', ''};
-
-            inputs = inputdlg(promt, title, dims, defaultValues);
-            if ~isempty(inputs)
-            roomDimensions = [str2double(inputs(1)), str2double(inputs(2)), str2double(inputs(3))];
-            end
+            popup = uifigure("Name", "Choose room type", "Position", [100, 100, 300, 200]);
+            dropdownLabel = uilabel(popup, 'Text', 'Select a room', 'Position', [10, 130, 150, 22]);
+            dropdown = uidropdown(popup, "Items", {'100x100x100, high reflection', '100x100x100, low reflection','300x300x300, high reflection', '300x300x300, low reflection', 'Custom'}, "Position", [150, 130, 150, 22]);
+            reverbTFieldLabel = uilabel(popup, 'Text', 'Reverberation time [s]:', 'Position', [10, 70, 150, 22]);
+            reverbT_field  = uieditfield(popup, 'numeric', 'Position', [150, 70, 50, 22], 'Value', 0);
+            sampleRFieldLabel = uilabel(popup, 'Text', 'Sample rate [Hz]:', 'Position', [10, 100, 150, 22]);
+            sampleR_field = uieditfield(popup, 'numeric', 'Position', [150, 100, 50, 22], 'Value', 0);
+            popupButton = uibutton(popup, "Text", "Ok", "Position", [95, 20, 60, 22], 'ButtonPushedFcn', @(~,~) popupButtonPushedFcn(popup, dropdown, reverbT_field, sampleR_field));
             
-            % get source position
-            promt = {"Source x coord:", "Source y coord:", "Source z coord:"};
-            title = "Source location in room";
-            dims = [1 80];
-            defaultValues = {'', '', ''};
+            function popupButtonPushedFcn(popup, dropdown, reverbT_field, sampleR_field)
+                app.t_reverb = reverbT_field.Value;
+                app.F_s_2 = sampleR_field.Value;
+                app.roomType = dropdown.Value;
+                cla(app.RTPlot);
+                close(popup);
+            end
+            waitfor(popup);
 
-            inputs = inputdlg(promt, title, dims, defaultValues);
-            if ~isempty(inputs)
-            Source = [str2double(inputs(1)), str2double(inputs(2)), str2double(inputs(3))];
+            if strcmp("Custom", app.roomType)
+                % get room dimensions
+                promt = {"Room length:", "Room width:", "Room height:"};
+                title = "Enter room dimensions";
+                dims = [1 80];
+                defaultValues = {'', '', ''};
+    
+                inputs = inputdlg(promt, title, dims, defaultValues);
+                if ~isempty(inputs)
+                app.Room_dimensions = [str2double(inputs(1)), str2double(inputs(2)), str2double(inputs(3))];
+                end
+                
+                % get source position
+                promt = {"Source x coord:", "Source y coord:", "Source z coord:"};
+                title = "Source location in room";
+                dims = [1 80];
+                defaultValues = {'', '', ''};
+    
+                inputs = inputdlg(promt, title, dims, defaultValues);
+                if ~isempty(inputs)
+                app.Source = [str2double(inputs(1)), str2double(inputs(2)), str2double(inputs(3))];
+                end
+    
+                % get source position
+                promt = {"Receiver x coord:", "Receiver y coord:", "Receiver z coord:"};
+                title = "Receiver location in room";
+                dims = [1 80];
+                defaultValues = {'', '', ''};
+    
+                inputs = inputdlg(promt, title, dims, defaultValues);
+                if ~isempty(inputs)
+                app.Receiver = [str2double(inputs(1)), str2double(inputs(2)), str2double(inputs(3))];
+                end
+    
+                % get Wall coefficients
+                promt = {"Left wall:", "Right wall:", "Front wall:", "Back wall:", "Floor:", "Ceiling:"};
+                title = "Absorption coefficients of walls";
+                dims = [1 80];
+                defaultValues = {'', '', '', '', '', ''};
+    
+                inputs = inputdlg(promt, title, dims, defaultValues);
+                if ~isempty(inputs)
+                app.Wallcoefs = [str2double(inputs(1)), str2double(inputs(2)), str2double(inputs(3)), str2double(inputs(4)), str2double(inputs(5)), str2double(inputs(6))];
+                end
+            elseif strcmp('100x100x100, high reflection', app.roomType)
+                app.Room_dimensions = [100, 100, 100];
+                app.Source = [50, 50, 50];
+                app.Receiver = [1, 55, 50];
+                app.Wallcoefs = [0.2, 0.2, 0.2, 0.2, 0.2, 0.2];
+
+            elseif strcmp('100x100x100, low reflection', app.roomType)
+                app.Room_dimensions = [100, 100, 100];
+                app.Source = [50, 50, 50];
+                app.Receiver = [1, 55, 50];
+                app.Wallcoefs = [0.1, 0.1, 0.1, 0.1, 0.1, 0.1];
+            elseif strcmp('300x300x300, high reflection', app.roomType)
+                app.Room_dimensions = [300, 300, 300];
+                app.Source = [150, 150, 150];
+                app.Receiver = [10, 155, 150];
+                app.Wallcoefs = [0.2, 0.2, 0.2, 0.2, 0.2, 0.2];          
+            elseif strcmp('300x300x300, low reflection', app.roomType)
+                app.Room_dimensions = [300, 300, 300];
+                app.Source = [150, 150, 150];
+                app.Receiver = [10, 155, 150];
+                app.Wallcoefs = [0.1, 0.1, 0.1, 0.1, 0.1, 0.1];     
+            else
+                return
             end
 
-            % get source position
-            promt = {"Receiver x coord:", "Receiver y coord:", "Receiver z coord:"};
-            title = "Receiver location in room";
-            dims = [1 80];
-            defaultValues = {'', '', ''};
-
-            inputs = inputdlg(promt, title, dims, defaultValues);
-            if ~isempty(inputs)
-            Receiver = [str2double(inputs(1)), str2double(inputs(2)), str2double(inputs(3))];
-            end
-
-            % get Wall coefficients
-            promt = {"Left wall:", "Right wall:", "Front wall:", "Back wall:", "Floor:", "Ceiling:"};
-            title = "Absorption coefficients of walls";
-            dims = [1 80];
-            defaultValues = {'', '', '', '', '', ''};
-
-            inputs = inputdlg(promt, title, dims, defaultValues);
-            if ~isempty(inputs)
-            WallCoeff = [str2double(inputs(1)), str2double(inputs(2)), str2double(inputs(3)), str2double(inputs(4)), str2double(inputs(5)), str2double(inputs(6))];
-            end
-
-            % get max reverb. time and sampling rate
-            promt = {"max reverb. time:", "sampling rate:"};
-            title = "Max reverb. time and sampling rate";
-            dims = [1 80];
-            defaultValues = {'', ''};
-
-            inputs = inputdlg(promt, title, dims, defaultValues);
-            if ~isempty(inputs)
-            maxReverbTime = str2double(inputs(1));
-            samplingRate = str2double(inputs(2));
-            end
-
-            if ~isempty(roomDimensions) && ~isempty(Source) && ~isempty(Receiver) && ~isempty(WallCoeff) && ~isempty(maxReverbTime) && ~isempty(samplingRate)
-                 [IRdata, imageSourceCoords]  = IRfromCuboid(roomDimensions, Source, Receiver, maxReverbTime, WallCoeff, samplingRate);
+            if ~isempty(app.Room_dimensions) && ~isempty(app.Source) && ~isempty(app.Receiver) && ~isempty(app.Wallcoefs) && ~isempty(app.t_reverb) && ~isempty(app.F_s_2)
+                 [IRdata, imageSourceCoords]  = IRfromCuboid(app.Room_dimensions, app.Source, app.Receiver, app.t_reverb, app.Wallcoefs, app.F_s_2);
+                 app.SourceXField.Value = app.Source(1);
+                 app.SourceYField.Value = app.Source(2);
+                 app.SourceZField.Value = app.Source(3);
+                 app.ReceiverXField.Value = app.Receiver(1);
+                 app.ReceiverYField.Value = app.Receiver(2);
+                 app.ReceiverZField.Value = app.Receiver(3);
                  app.impulseResponseData = IRdata;
-                 app.F_s_2 = samplingRate;
 
                  if ~isempty(app.impulseResponseData)
                     L = length(app.impulseResponseData);
@@ -452,20 +549,171 @@ classdef GUI < matlab.apps.AppBase
                  end
 
                  if app.PlotimagesourcesCheckBox.Value
-                    plotImageSources(roomDimensions, Receiver, Source, imageSourceCoords, app.ShowraytracesCheckBox.Value);
+                    plotImageSources(app.Room_dimensions, app.Receiver, app.Source, imageSourceCoords, app.ShowraytracesCheckBox.Value, app.RTPlot);
+                 else
+                    plotRoom(app.Room_dimensions, app.Receiver, app.Source, app.RTPlot);
+                    app.RTPlot.Visible = "on";
                  end
+                
             end
         end
 
         % Button pushed function: ButtonLoadHRIR
         function ButtonLoadHRIRPushed(app, event)
-            filepaths = fullfile("./impulse_responses//HRTF_full/", "**", "*.dat");
-            hrir_files = dir(filepaths);
+            app.boResampledHrirFlag = false;
+            app.ResampleHRIRsetButton.Visible = "on";
+            app.hrir_fullset  = readHRIR("./impulse_responses//HRTF_full/");
 
-            for i = 1:length(hrir_files)
-                currentFile = fullfile(hrir_files(i).folder, hrir_files(i).name);
-                app.hrir_set = fopen(currentFile);
+
+        end
+
+        % Button pushed function: RTButtonConv
+        function RTButtonConvPushed(app, event)
+            app.boStopRTRecordingFlag = false;
+            app.playRec = audioPlayerRecorder(app.F_s_2);
+            app.playRec.PlayerChannelMapping = [1, 2];
+            blocks = 1024;
+            computeFinalImpulseResponse(app);
+            [audioOverlap(:,1), output(:,1)] = prepareBlocks(blocks, app.convolvedSignalData_left);
+            [audioOverlap(:,2), output(:,2)] = prepareBlocks(blocks, app.convolvedSignalData_right); 
+            if ~isempty(app.impulseResponseData)
+                while ~app.boStopRTRecordingFlag
+                    input = app.playRec([output(:,1), output(:,2)]);
+                    [output(:,1), audioOverlap(:,1)] = realTimeConvAndOutput(input, audioOverlap(:,1),  app.current_hrir_right, blocks);
+                    [output(:,2), audioOverlap(:,2)] = realTimeConvAndOutput(input, audioOverlap(:,2),  app.current_hrir_left, blocks);
+                    pause(0.01);
+                end
             end
+            release(app.playRec);
+        end
+
+        % Button pushed function: RTButtonStartStop
+        function RTButtonStartStopPushed(app, event)
+            app.boStopRTRecordingFlag = true;
+        end
+
+        % Button pushed function: ApplyButton
+        function ApplyButtonPushed(app, event)
+            if ~isempty(app.SourceXField.Value)
+                app.Source(1) = app.SourceXField.Value;
+            end
+            if ~isempty(app.SourceYField.Value)
+                app.Source(2) = app.SourceYField.Value;
+            end
+            if ~isempty(app.SourceZField.Value)
+                app.Source(3) = app.SourceZField.Value;
+            end            
+            if ~isempty(app.ReceiverXField.Value)
+                app.Receiver(1) = app.ReceiverXField.Value;
+            end
+            if ~isempty(app.ReceiverYField.Value)
+                app.Source(2) = app.ReceiverYField.Value;
+            end
+            if ~isempty(app.ReceiverZField.Value)
+                app.Source(3) = app.ReceiverZField.Value;
+            end          
+            [app.impulseResponseData, imageSourceCoords]  = IRfromCuboid(app.Room_dimensions, app.Source, app.Receiver, app.t_reverb, app.Wallcoefs, app.F_s_2);
+            cla(app.RTPlot);
+            computeFinalImpulseResponse(app);
+            if app.PlotimagesourcesCheckBox.Value
+                plotImageSources(app.Room_dimensions, app.Receiver, app.Source, imageSourceCoords, app.ShowraytracesCheckBox.Value, app.RTPlot);
+            else
+                plotRoom(app.Room_dimensions, app.Receiver, app.Source, app.RTPlot);
+                app.RTPlot.Visible = "on";
+            end
+
+            L = length(app.impulseResponseData);
+            t=(0:L-1)*(1/app.F_s_2);
+            
+            plot(app.TimeDomainAxes_2, t, app.impulseResponseData);
+            
+            y_freqDomain = fft(app.impulseResponseData);
+            plot(app.FreqDomainAxes_2, (0:L-1)*(app.F_s_2/L), abs(fftshift(y_freqDomain)));
+        end
+
+        % Button pushed function: KeystrokesButton
+        function KeystrokesButtonPushed(app, event)
+            if ~app.boKeystrokeActive
+                app.boKeystrokeActive = true;
+                app.KeystrokesButton.Text = 'Deactivate';
+            else
+                app.boKeystrokeActive = false;
+                app.KeystrokesButton.Text = 'Keystrokes';
+                [app.impulseResponseData , imageSourceCoords, ~, ~]  = IRfromCuboid(app.Room_dimensions, app.Source, app.Receiver, app.t_reverb, app.Wallcoefs, app.F_s_2);
+                if app.PlotimagesourcesCheckBox.Value
+                    plotImageSources(app.Room_dimensions, app.Receiver, app.Source, imageSourceCoords, app.ShowraytracesCheckBox.Value, app.RTPlot);
+                end
+                computeFinalImpulseResponse(app);
+                app.RTPlot.Visible = "on";
+            end
+        end
+
+        % Key press function: UIFigure
+        function UIFigureKeyPress(app, event)
+            if app.boKeystrokeActive
+                [app.Source, app.Receiver] = keystrokeCoordUpdate(app.Source, app.Receiver, app.Room_dimensions, event);
+                            [app.impulseResponseData, imageSourceCoords]  = IRfromCuboid(app.Room_dimensions, app.Source, app.Receiver, app.t_reverb, app.Wallcoefs, app.F_s_2);
+                            computeFinalImpulseResponse(app);
+                cla(app.RTPlot);
+                 if ~app.PlotimagesourcesCheckBox.Value
+                    plotRoom(app.Room_dimensions, app.Receiver, app.Source, app.RTPlot);
+                 end
+                app.RTPlot.Visible = "on";
+                % end
+            end
+            
+        end
+
+        % Button down function: RTPlot
+        function RTPlotButtonDown(app, event)
+            
+        end
+
+        % Button pushed function: ResampleHRIRsetButton
+        function ResampleHRIRsetButtonPushed(app, event)
+            app.boResampledHrirFlag = true;
+            if ~isempty(app.hrir_fullset)
+                app.ResampleHRIRsetButton.Visible = "off";
+                for i = 1:length(app.hrir_fullset(:,1))
+                    for j = 1:length(app.hrir_fullset{i})
+                        app.hrir_fullset{i}{j} = resample(app.hrir_fullset{i}{j}, app.F_s_2, 44100);
+                    end
+                end
+            end
+            app.hrir_fullset = transpose(app.hrir_fullset);
+        end
+
+        % Value changed function: WriteAudioField
+        function WriteAudioFieldValueChanged(app, event)
+            value = app.WriteAudioField.Value;
+            
+        end
+
+        % Button pushed function: RecordSpatializationButton
+        function RecordSpatializationButtonPushed(app, event)
+            app.boStopRTRecordingFlag = false;
+            app.playRec = audioPlayerRecorder(app.F_s_2);
+            app.playRec.PlayerChannelMapping = [1, 2];
+            blocks = 1024;
+            audiofile_left = [];
+            audiofile_right = [];
+            computeFinalImpulseResponse(app);
+            [audioOverlap(:,1), output(:,1)] = prepareBlocks(blocks, app.convolvedSignalData_left);
+            [audioOverlap(:,2), output(:,2)] = prepareBlocks(blocks, app.convolvedSignalData_right); 
+            if ~isempty(app.impulseResponseData)
+                while ~app.boStopRTRecordingFlag
+                    input = app.playRec(output);
+                    [output(:,1), audioOverlap(:,1)] = realTimeConvAndOutput(input, audioOverlap(:,1),  app.current_hrir_left, blocks);
+                    [output(:,2), audioOverlap(:,2)] = realTimeConvAndOutput(input, audioOverlap(:,2),  app.current_hrir_right, blocks);
+                    audiofile_left = [audiofile_left; output(:,1)];
+                    audiofile_right = [audiofile_right; output(:,2)];                    
+                    pause(0.01);
+                end
+            end
+            release(app.playRec);
+            audiofile = [audiofile_left, audiofile_right];
+            % writeAudiofile("wav", audiofile, app.F_s_2);
+            audiowrite("audiofile.wav", audiofile, app.F_s_2);
         end
     end
 
@@ -479,47 +727,7 @@ classdef GUI < matlab.apps.AppBase
             app.UIFigure = uifigure('Visible', 'off');
             app.UIFigure.Position = [100 100 857 709];
             app.UIFigure.Name = 'MATLAB App';
-
-            % Create TimeDomainAxes
-            app.TimeDomainAxes = uiaxes(app.UIFigure);
-            title(app.TimeDomainAxes, 'Time domain')
-            xlabel(app.TimeDomainAxes, 't / s')
-            ylabel(app.TimeDomainAxes, 'Amplitude')
-            zlabel(app.TimeDomainAxes, 'Z')
-            app.TimeDomainAxes.XGrid = 'on';
-            app.TimeDomainAxes.YGrid = 'on';
-            app.TimeDomainAxes.ButtonDownFcn = createCallbackFcn(app, @TimeDomainAxesButtonDown, true);
-            app.TimeDomainAxes.Position = [24 241 300 185];
-
-            % Create FreqDomainAxes
-            app.FreqDomainAxes = uiaxes(app.UIFigure);
-            title(app.FreqDomainAxes, 'Frequency domain')
-            xlabel(app.FreqDomainAxes, 'f / Hz')
-            ylabel(app.FreqDomainAxes, 'Magnitude')
-            zlabel(app.FreqDomainAxes, 'Z')
-            app.FreqDomainAxes.XGrid = 'on';
-            app.FreqDomainAxes.YGrid = 'on';
-            app.FreqDomainAxes.Position = [493 241 300 185];
-
-            % Create TimeDomainAxes_2
-            app.TimeDomainAxes_2 = uiaxes(app.UIFigure);
-            title(app.TimeDomainAxes_2, 'Time domain - Impulse Response')
-            xlabel(app.TimeDomainAxes_2, 't / s')
-            ylabel(app.TimeDomainAxes_2, 'Amplitude')
-            zlabel(app.TimeDomainAxes_2, 'Z')
-            app.TimeDomainAxes_2.XGrid = 'on';
-            app.TimeDomainAxes_2.YGrid = 'on';
-            app.TimeDomainAxes_2.Position = [23 38 300 185];
-
-            % Create FreqDomainAxes_2
-            app.FreqDomainAxes_2 = uiaxes(app.UIFigure);
-            title(app.FreqDomainAxes_2, 'Frequency domain - impulse response')
-            xlabel(app.FreqDomainAxes_2, 'f / Hz')
-            ylabel(app.FreqDomainAxes_2, 'Magnitude')
-            zlabel(app.FreqDomainAxes_2, 'Z')
-            app.FreqDomainAxes_2.XGrid = 'on';
-            app.FreqDomainAxes_2.YGrid = 'on';
-            app.FreqDomainAxes_2.Position = [492 38 300 185];
+            app.UIFigure.KeyPressFcn = createCallbackFcn(app, @UIFigureKeyPress, true);
 
             % Create InputsourceDropDownLabel
             app.InputsourceDropDownLabel = uilabel(app.UIFigure);
@@ -567,6 +775,7 @@ classdef GUI < matlab.apps.AppBase
 
             % Create WriteAudioField
             app.WriteAudioField = uieditfield(app.UIFigure, 'text');
+            app.WriteAudioField.ValueChangedFcn = createCallbackFcn(app, @WriteAudioFieldValueChanged, true);
             app.WriteAudioField.Position = [256 442 100 22];
 
             % Create StartStopRecordingButton
@@ -576,17 +785,17 @@ classdef GUI < matlab.apps.AppBase
             app.StartStopRecordingButton.Position = [139 622 100 23];
             app.StartStopRecordingButton.Text = 'Start / Stop ';
 
-            % Create ConvolutionButton
-            app.ConvolutionButton = uibutton(app.UIFigure, 'push');
-            app.ConvolutionButton.ButtonPushedFcn = createCallbackFcn(app, @ConvolutionButtonPushed, true);
-            app.ConvolutionButton.Position = [555 575 100 23];
-            app.ConvolutionButton.Text = 'Convolution';
-
             % Create ReadAudioButton_2
             app.ReadAudioButton_2 = uibutton(app.UIFigure, 'push');
             app.ReadAudioButton_2.ButtonPushedFcn = createCallbackFcn(app, @ReadAudioButton_2Pushed, true);
             app.ReadAudioButton_2.Position = [139 579 100 23];
             app.ReadAudioButton_2.Text = 'Read audio';
+
+            % Create ConvolutionButton
+            app.ConvolutionButton = uibutton(app.UIFigure, 'push');
+            app.ConvolutionButton.ButtonPushedFcn = createCallbackFcn(app, @ConvolutionButtonPushed, true);
+            app.ConvolutionButton.Position = [555 575 100 23];
+            app.ConvolutionButton.Text = 'Convolution';
 
             % Create ReadAudioField_2
             app.ReadAudioField_2 = uieditfield(app.UIFigure, 'text');
@@ -675,12 +884,14 @@ classdef GUI < matlab.apps.AppBase
 
             % Create RTButtonStartStop
             app.RTButtonStartStop = uibutton(app.UIFigure, 'push');
+            app.RTButtonStartStop.ButtonPushedFcn = createCallbackFcn(app, @RTButtonStartStopPushed, true);
             app.RTButtonStartStop.Visible = 'off';
             app.RTButtonStartStop.Position = [139 622 100 23];
             app.RTButtonStartStop.Text = 'Start / Stop';
 
             % Create RTButtonConv
             app.RTButtonConv = uibutton(app.UIFigure, 'push');
+            app.RTButtonConv.ButtonPushedFcn = createCallbackFcn(app, @RTButtonConvPushed, true);
             app.RTButtonConv.Visible = 'off';
             app.RTButtonConv.Position = [537 575 137 23];
             app.RTButtonConv.Text = 'Real-Time Convolution';
@@ -690,6 +901,163 @@ classdef GUI < matlab.apps.AppBase
             app.ButtonLoadHRIR.ButtonPushedFcn = createCallbackFcn(app, @ButtonLoadHRIRPushed, true);
             app.ButtonLoadHRIR.Position = [24 507 100 23];
             app.ButtonLoadHRIR.Text = 'Load HRIR set';
+
+            % Create TabGroup
+            app.TabGroup = uitabgroup(app.UIFigure);
+            app.TabGroup.Position = [16 11 827 417];
+
+            % Create PlotsTab
+            app.PlotsTab = uitab(app.TabGroup);
+            app.PlotsTab.Title = 'Plots';
+
+            % Create TimeDomainAxes
+            app.TimeDomainAxes = uiaxes(app.PlotsTab);
+            title(app.TimeDomainAxes, 'Time domain')
+            xlabel(app.TimeDomainAxes, 't / s')
+            ylabel(app.TimeDomainAxes, 'Amplitude')
+            zlabel(app.TimeDomainAxes, 'Z')
+            app.TimeDomainAxes.XGrid = 'on';
+            app.TimeDomainAxes.YGrid = 'on';
+            app.TimeDomainAxes.ButtonDownFcn = createCallbackFcn(app, @TimeDomainAxesButtonDown, true);
+            app.TimeDomainAxes.Position = [4 206 300 185];
+
+            % Create TimeDomainAxes_2
+            app.TimeDomainAxes_2 = uiaxes(app.PlotsTab);
+            title(app.TimeDomainAxes_2, 'Time domain - Impulse Response')
+            xlabel(app.TimeDomainAxes_2, 't / s')
+            ylabel(app.TimeDomainAxes_2, 'Amplitude')
+            zlabel(app.TimeDomainAxes_2, 'Z')
+            app.TimeDomainAxes_2.XGrid = 'on';
+            app.TimeDomainAxes_2.YGrid = 'on';
+            app.TimeDomainAxes_2.Position = [4 10 300 185];
+
+            % Create FreqDomainAxes_2
+            app.FreqDomainAxes_2 = uiaxes(app.PlotsTab);
+            title(app.FreqDomainAxes_2, 'Frequency domain - impulse response')
+            xlabel(app.FreqDomainAxes_2, 'f / Hz')
+            ylabel(app.FreqDomainAxes_2, 'Magnitude')
+            zlabel(app.FreqDomainAxes_2, 'Z')
+            app.FreqDomainAxes_2.XGrid = 'on';
+            app.FreqDomainAxes_2.YGrid = 'on';
+            app.FreqDomainAxes_2.Position = [466 10 300 185];
+
+            % Create FreqDomainAxes
+            app.FreqDomainAxes = uiaxes(app.PlotsTab);
+            title(app.FreqDomainAxes, 'Frequency domain')
+            xlabel(app.FreqDomainAxes, 'f / Hz')
+            ylabel(app.FreqDomainAxes, 'Magnitude')
+            zlabel(app.FreqDomainAxes, 'Z')
+            app.FreqDomainAxes.XGrid = 'on';
+            app.FreqDomainAxes.YGrid = 'on';
+            app.FreqDomainAxes.Position = [466 208 300 185];
+
+            % Create RoomTab
+            app.RoomTab = uitab(app.TabGroup);
+            app.RoomTab.Title = 'Room';
+
+            % Create RTPlot
+            app.RTPlot = uiaxes(app.RoomTab);
+            title(app.RTPlot, 'Title')
+            xlabel(app.RTPlot, 'X')
+            ylabel(app.RTPlot, 'Y')
+            zlabel(app.RTPlot, 'Z')
+            app.RTPlot.ButtonDownFcn = createCallbackFcn(app, @RTPlotButtonDown, true);
+            app.RTPlot.Visible = 'off';
+            app.RTPlot.Position = [8 10 807 344];
+
+            % Create ApplyButton
+            app.ApplyButton = uibutton(app.RoomTab, 'push');
+            app.ApplyButton.ButtonPushedFcn = createCallbackFcn(app, @ApplyButtonPushed, true);
+            app.ApplyButton.Position = [441 360 100 23];
+            app.ApplyButton.Text = 'Apply';
+
+            % Create SourceLabel
+            app.SourceLabel = uilabel(app.RoomTab);
+            app.SourceLabel.Position = [9 361 46 22];
+            app.SourceLabel.Text = 'Source:';
+
+            % Create ReceiverLabel
+            app.ReceiverLabel = uilabel(app.RoomTab);
+            app.ReceiverLabel.Position = [212 361 56 22];
+            app.ReceiverLabel.Text = 'Receiver:';
+
+            % Create KeystrokesButton
+            app.KeystrokesButton = uibutton(app.RoomTab, 'push');
+            app.KeystrokesButton.ButtonPushedFcn = createCallbackFcn(app, @KeystrokesButtonPushed, true);
+            app.KeystrokesButton.Position = [705 360 100 23];
+            app.KeystrokesButton.Text = 'Keystrokes';
+
+            % Create XEditFieldLabel
+            app.XEditFieldLabel = uilabel(app.RoomTab);
+            app.XEditFieldLabel.HorizontalAlignment = 'right';
+            app.XEditFieldLabel.Position = [60 361 13 22];
+            app.XEditFieldLabel.Text = 'X';
+
+            % Create ZLabel
+            app.ZLabel = uilabel(app.RoomTab);
+            app.ZLabel.HorizontalAlignment = 'right';
+            app.ZLabel.Position = [129 361 25 22];
+            app.ZLabel.Text = 'Z';
+
+            % Create SourceZField
+            app.SourceZField = uieditfield(app.RoomTab, 'numeric');
+            app.SourceZField.Position = [158 361 23 22];
+
+            % Create YLabel
+            app.YLabel = uilabel(app.RoomTab);
+            app.YLabel.HorizontalAlignment = 'right';
+            app.YLabel.Position = [88 361 25 22];
+            app.YLabel.Text = 'Y';
+
+            % Create SourceYField
+            app.SourceYField = uieditfield(app.RoomTab, 'numeric');
+            app.SourceYField.Position = [117 361 23 22];
+
+            % Create SourceXField
+            app.SourceXField = uieditfield(app.RoomTab, 'numeric');
+            app.SourceXField.Position = [77 361 23 22];
+
+            % Create XEditFieldLabel_2
+            app.XEditFieldLabel_2 = uilabel(app.RoomTab);
+            app.XEditFieldLabel_2.HorizontalAlignment = 'right';
+            app.XEditFieldLabel_2.Position = [273 361 13 22];
+            app.XEditFieldLabel_2.Text = 'X';
+
+            % Create ZLabel_2
+            app.ZLabel_2 = uilabel(app.RoomTab);
+            app.ZLabel_2.HorizontalAlignment = 'right';
+            app.ZLabel_2.Position = [342 361 25 22];
+            app.ZLabel_2.Text = 'Z';
+
+            % Create ReceiverZField
+            app.ReceiverZField = uieditfield(app.RoomTab, 'numeric');
+            app.ReceiverZField.Position = [371 361 23 22];
+
+            % Create YLabel_2
+            app.YLabel_2 = uilabel(app.RoomTab);
+            app.YLabel_2.HorizontalAlignment = 'right';
+            app.YLabel_2.Position = [301 361 25 22];
+            app.YLabel_2.Text = 'Y';
+
+            % Create ReceiverYField
+            app.ReceiverYField = uieditfield(app.RoomTab, 'numeric');
+            app.ReceiverYField.Position = [330 361 23 22];
+
+            % Create ReceiverXField
+            app.ReceiverXField = uieditfield(app.RoomTab, 'numeric');
+            app.ReceiverXField.Position = [290 361 23 22];
+
+            % Create ResampleHRIRsetButton
+            app.ResampleHRIRsetButton = uibutton(app.UIFigure, 'push');
+            app.ResampleHRIRsetButton.ButtonPushedFcn = createCallbackFcn(app, @ResampleHRIRsetButtonPushed, true);
+            app.ResampleHRIRsetButton.Position = [136 507 121 23];
+            app.ResampleHRIRsetButton.Text = 'Resample HIRR set';
+
+            % Create RecordSpatializationButton
+            app.RecordSpatializationButton = uibutton(app.UIFigure, 'push');
+            app.RecordSpatializationButton.ButtonPushedFcn = createCallbackFcn(app, @RecordSpatializationButtonPushed, true);
+            app.RecordSpatializationButton.Position = [288 507 128 23];
+            app.RecordSpatializationButton.Text = 'Record Spatialization';
 
             % Show the figure after all components are created
             app.UIFigure.Visible = 'on';
