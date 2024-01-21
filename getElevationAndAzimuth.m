@@ -13,16 +13,17 @@
 %  Version      Date                Author                  Comment
 % -------------------------------------------------------------------------
 %   1.0             19.12.23    L.Gildenstern            created
+%   1.1             20.01.24    J.Smith                     fixed possible error in atan2 function
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function [ElevationInDegrees, AzimuthInDegrees] = getElevationAndAzimuth(sourceCoord, receiverCoord, directionFacing)
+function [ElevationInDegrees, AzimuthInDegrees] = getElevationAndAzimuth(SourceCoordinates, ReceiverCoordinates, directionFacing)
     % source and receiver are 3D coordinates [x, y, z]
     % receiverFacing is the facing direction of the receiver [x, y, z]
     % returns Elevation angle (-90,90)
     % returns Azimuth angle [0,360] in clockwise direction
 
-    sourceReceiverVector = receiverCoord - sourceCoord;
+    sourceReceiverVector = SourceCoordinates - ReceiverCoordinates;
     
     % azimuthProjection
     xDir = [1, 0, 0];
@@ -36,6 +37,10 @@ function [ElevationInDegrees, AzimuthInDegrees] = getElevationAndAzimuth(sourceC
 
     % elevation angle
     distanceXY = norm(sourceReceiverVector(1:2)); % Distance in the XY plane
-    ElevationInRadians = atan2(sourceReceiverVector(3), distanceXY);
-    ElevationInDegrees = rad2deg(ElevationInRadians);
+    if distanceXY == 0
+        ElevationInDegrees = 90;
+    else
+        ElevationInRadians = atan2(sourceReceiverVector(3), distanceXY);
+        ElevationInDegrees = rad2deg(ElevationInRadians);
+    end
 end

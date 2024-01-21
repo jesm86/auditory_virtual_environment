@@ -209,7 +209,7 @@ classdef GUI < matlab.apps.AppBase
                 app.ConvolutionTimeField.Visible = "on";
                 app.RecordRTSpatializationButton.Visible = "off";
                 app.ConvolutionButton.Visible = "on";
-            elseif "Real-Time Microphone" == app.InputDropDown.Value
+            elseif "R   eal-Time Microphone" == app.InputDropDown.Value
                 app.StartStopRecordingButton.Visible = "off";
                 app.ReadAudioButton.Visible = "off";
                 app.ResampleInput.Visible = "off";
