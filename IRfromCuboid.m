@@ -31,7 +31,7 @@
 %   retval             isourceCoord        coordinates of calculated image sources
 %   retval             delay                     vector containing delay [s] of associated image sources
 %   retval             dist                        vector containing distance [m] of associated image sources
-function [iR,isourceCoord,delay,dist] = IRfromCuboid(roomDimensions,sourceCoord,receiverCoord,maxReverb,wallCoeff,Fs)
+function [iR,isourceCoord,delay,dist, coefs] = IRfromCuboid(roomDimensions,sourceCoord,receiverCoord,maxReverb,wallCoeff,Fs)
 
 % Speed of sound [m/s]
 c_sound = 343; 
