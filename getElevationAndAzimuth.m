@@ -23,7 +23,7 @@ function [ElevationInDegrees, AzimuthInDegrees] = getElevationAndAzimuth(SourceC
     % returns Elevation angle (-90,90)
     % returns Azimuth angle [0,360] in clockwise direction
 
-    sourceReceiverVector = SourceCoordinates - ReceiverCoordinates;
+    sourceReceiverVector = ReceiverCoordinates - SourceCoordinates;
     
     % azimuthProjection
     xDir = [1, 0, 0];

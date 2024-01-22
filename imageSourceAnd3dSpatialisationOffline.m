@@ -28,15 +28,23 @@
 %
 %   retval          output              vector containing the rendered
 %   audio output
-function [output] = imageSourceAnd3dSpatialisationOffline(audio,Fs,blockSize,roomDimensions,sourceCoords, receiverCoords, directionFacing, maxReverb, wallCoef, HRIR)
+function [output] = imageSourceAnd3dSpatialisationOffline(audio,Fs,blockSize,roomDimensions,sourceCoords, receiverCoords, directionFacing, maxReverb, wallCoef, HRIR_set)
 
-[convBlockSize,zStart,zEnd]=getPrepParams(audio,HRIR,blockSize);
-audio = [audio; zeros(zEnd,width(audio))];
+zEnd = blockSize - mod(length(audio),blockSize);
+if 2 == width(audio)
+    audio = [audio; zeros(zEnd,width(audio))];
+else
+    audio = [audio, audio; zeros(zEnd,2)];
+end
 
 % preallocate output (audio, HRIR, h/maxreverb)
-output = zeros(length(audio)+maxReverb*Fs,width(audio)); %+length(HRIR)-1
+output = zeros(length(audio)+maxReverb*Fs,width(audio)); 
 
-for ch = 1:width(audio)
+%output(:,1)= zeros(length(audio)+maxReverb*Fs,width(audio)); %+length(HRIR)-1
+%output(:,2) = zeros(length(audio)+maxReverb*Fs,width(audio)); %+length(HRIR)-1
+lastIndexCoords = numel(sourceCoords(:,1));
+
+for ch = 1:2%width(audio)
 
     %for loop over blocks of complete audio signal
     runs = ((length(audio))/blockSize)-1;
@@ -47,10 +55,13 @@ for ch = 1:width(audio)
         block = audio(start:stop,ch);
     
         % get current positions and dimensions somehow
-        sourceCoord = mean(sourceCoords(start:stop,:));
-        receiverCoord = mean(receiverCoords(start:stop,:));
-        
-        [iR,isourceCoord,delay,dist,coefs] = IRfromCuboid(roomDimensions,sourceCoord,receiverCoord,maxReverb,wallCoef,Fs);
+        %sourceCoord = mean(sourceCoords(start:stop,:));
+        %receiverCoord = mean(receiverCoords(start:stop,:));
+        if lastIndexCoords < (r+1)
+            [~,isourceCoord,delay,~,coefs] = IRfromCuboid(roomDimensions,sourceCoords(lastIndexCoords,:),receiverCoords(lastIndexCoords,:),maxReverb,wallCoef,Fs);
+        else
+            [~,isourceCoord,delay,~,coefs] = IRfromCuboid(roomDimensions,sourceCoords(r+1,:),receiverCoords(r+1,:),maxReverb,wallCoef,Fs);
+        end
         %delay=[1;2;1000; 0.2*Fs; 0.4*Fs];
         %coefs=[1;1;0.1; 1; 1];
     
@@ -60,18 +71,24 @@ for ch = 1:width(audio)
             singleImageBlock = [zeros(delay(i),width(block));block]*coefs(i);
             
             % get elevation and azimuth
-            [elev,azim] = getElevationAndAzimuth(sourceCoord,receiverCoord,directionFacing);
+            if lastIndexCoords < (r+1)
+                [HRIR(:,1), HRIR(:,2)] = computeFinalHrir(receiverCoords(lastIndexCoords, :), isourceCoord(i, :), HRIR_set, Fs); 
+            else
+                [HRIR(:,1), HRIR(:,2)] = computeFinalHrir(receiverCoords(r+1, :), isourceCoord(i, :), HRIR_set, Fs); 
+            end
     
             % get corresponding HRIR
             % getHRIR(elev,azim,ch);
-            
+            %HRIR = computeFinalHrir(receiverCoord(r+1), sourceCoord(r+1), HRIR_set, Fs);
+            resample(HRIR(:,1), Fs, 44100);
+            resample(HRIR(:,2), Fs, 44100);
             % prep block
-            [convBlockSize,zStart,zEnd]=getPrepParams(singleImageBlock,HRIR,blockSize);
+            [convBlockSize,zStart,zEnd]=getPrepParams(singleImageBlock,HRIR(:,ch),blockSize);
             singleImageBlock = [singleImageBlock; zeros(zEnd,width(singleImageBlock))];%[zeros(zStart ,width(singleImageBlock)); singleImageBlock; zeros(zEnd,width(singleImageBlock))];
     
             % set first overlap to zero
             overlap = zeros(convBlockSize,1);
-    
+
             % for loop and overlap save over one shifted and dampened block
             blockRuns = ((length(singleImageBlock))/blockSize)-1;
             for b = 0:blockRuns
@@ -81,16 +98,17 @@ for ch = 1:width(audio)
                 convBlock = singleImageBlock(startConv:stopConv);
     
                 %do overlap save
-                [tempOutput,overlap]=realTimeConvAndOutput(convBlock,overlap,HRIR,blockSize);
+                %[tempOutput,overlap]=realTimeConvAndOutput(convBlock,overlap,HRIR,blockSize);
+
+                [tempOutput,overlap]=realTimeConvAndOutput(convBlock,overlap,HRIR(:,ch),blockSize);
                 
                 % add tempOut to output
                 currentStart = start + blockSize * b;    %start-1+startConv;
                 currentStop = stop + blockSize * b;     %currentStart+blockSize-1;
-                if length(output) < currentStop
+                if length(output(:,1)) < currentStop
                     output = [output; zeros(currentStop-length(output), width(output))];
                 end
-                output(currentStart:currentStop,ch) = output(currentStart:currentStop,ch) + tempOutput;
-    
+                output(currentStart:currentStop,ch) = output(currentStart:currentStop,ch) + tempOutput;    
             end
              
         end
