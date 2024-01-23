@@ -28,7 +28,8 @@
 %
 %   retval          output              vector containing the rendered
 %   audio output
-function [output] = imageSourceAnd3dSpatialisationOffline(audio,Fs,blockSize,roomDimensions,sourceCoords, receiverCoords, directionFacing, maxReverb, wallCoef, HRIR_set)
+function [output] = imageSourceAnd3dSpatialisationOffline(audio,Fs,blockSize,roomDimensions,sourceCoords, receiverCoords, directionFacing, maxReverb, wallCoef, HRIR_set, Gauge)
+Gauge.Value = 0;
 
 zEnd = blockSize - mod(length(audio),blockSize);
 if 2 == width(audio)
@@ -53,7 +54,12 @@ for ch = 1:2%width(audio)
         start = blockSize*r+1; 
         stop = start+blockSize-1;  
         block = audio(start:stop,ch);
-    
+        
+        if 2 == ch
+            Gauge.Value = (r + runs) / (2 * runs) * 100;
+        elseif 1 == ch
+            Gauge.Value = r / (2 * runs) * 100;
+        end
         % get current positions and dimensions somehow
         %sourceCoord = mean(sourceCoords(start:stop,:));
         %receiverCoord = mean(receiverCoords(start:stop,:));
@@ -80,8 +86,8 @@ for ch = 1:2%width(audio)
             % get corresponding HRIR
             % getHRIR(elev,azim,ch);
             %HRIR = computeFinalHrir(receiverCoord(r+1), sourceCoord(r+1), HRIR_set, Fs);
-            resample(HRIR(:,1), Fs, 44100);
-            resample(HRIR(:,2), Fs, 44100);
+            %resample(HRIR(:,1), Fs, 44100);
+            resample(HRIR(:,ch), Fs, 44100);
             % prep block
             [convBlockSize,zStart,zEnd]=getPrepParams(singleImageBlock,HRIR(:,ch),blockSize);
             singleImageBlock = [singleImageBlock; zeros(zEnd,width(singleImageBlock))];%[zeros(zStart ,width(singleImageBlock)); singleImageBlock; zeros(zEnd,width(singleImageBlock))];
