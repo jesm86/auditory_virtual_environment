@@ -43,7 +43,8 @@ function [boStatusFlag] = writeAudiofile(format, audio, f_s)
         end
     elseif "wav" == format
             try
-                audio_normalized = audio / max(abs(audio));
+                audio_normalized(:,1) = audio(:,1) / max(abs(audio(:,1)));
+                audio_normalized(:,2) = audio(:,2) / max(abs(audio(:,2)));
                 audiowrite("output.wav", audio_normalized, f_s);
                 boStatusFlag = true;
             catch
