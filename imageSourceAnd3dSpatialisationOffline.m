@@ -72,7 +72,7 @@ for ch = 1:2%width(audio)
         %coefs=[1;1;0.1; 1; 1];
     
         %for loop over image source rays
-        for i = 1:length(delay)
+            for i = 1:length(delay)
             % shift and dampen block
             singleImageBlock = [zeros(delay(i),width(block));block]*coefs(i);
             
