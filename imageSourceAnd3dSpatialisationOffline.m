@@ -97,6 +97,7 @@ for ch = 1:2%width(audio)
 
             % for loop and overlap save over one shifted and dampened block
             blockRuns = ((length(singleImageBlock))/blockSize)-1;
+            pause(0.0000001);
             for b = 0:blockRuns
                 %extract current convolution block
                 startConv = blockSize*b+1;                                                    
