@@ -13,6 +13,7 @@
 %  Version      Date                Author                  Comment
 % -------------------------------------------------------------------------
 %   1.0             21.01.24    L.Gildenstern            created
+%   1.1             23.01.24    J. Smith                    added HRIR computation, adjusted to be usable in GUI, added progress bar
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -25,11 +26,13 @@
 %   param[in]       directionFacing     vector of directions the receiver is facing [[x, y, z][x, y, z]] in m
 %   param[in]       maxReverb           maximal reverberation time for rendering walls 
 %   param[in]       wallCoef            wall absorption coeffitient [left, right, front, back, floor, ceiling], range[0:1]
+%   param[in]       HRIR_set           HRIR filter set
+%   param[in]       Gauge               Gauge used in GUI to show progress [%]
 %
-%   retval          output              vector containing the rendered
-%   audio output
+%   retval          output              vector containing the rendered  audio output
 function [output] = imageSourceAnd3dSpatialisationOffline(audio,Fs,blockSize,roomDimensions,sourceCoords, receiverCoords, directionFacing, maxReverb, wallCoef, HRIR_set, Gauge)
 Gauge.Value = 0;
+
 
 zEnd = blockSize - mod(length(audio),blockSize);
 if 2 == width(audio)
@@ -41,11 +44,11 @@ end
 % preallocate output (audio, HRIR, h/maxreverb)
 output = zeros(length(audio)+maxReverb*Fs,width(audio)); 
 
-%output(:,1)= zeros(length(audio)+maxReverb*Fs,width(audio)); %+length(HRIR)-1
-%output(:,2) = zeros(length(audio)+maxReverb*Fs,width(audio)); %+length(HRIR)-1
+% get the index of the last recorded source and receiver positions
 lastIndexCoords = numel(sourceCoords(:,1));
 
-for ch = 1:2%width(audio)
+% create two output channels (stereo
+for ch = 1:2
 
     %for loop over blocks of complete audio signal
     runs = ((length(audio))/blockSize)-1;
@@ -55,42 +58,42 @@ for ch = 1:2%width(audio)
         stop = start+blockSize-1;  
         block = audio(start:stop,ch);
         
-        if 2 == ch
-            Gauge.Value = (r + runs) / (2 * runs) * 100;
-        elseif 1 == ch
-            Gauge.Value = r / (2 * runs) * 100;
+        if runs ~= 0
+            if 2 == ch
+                Gauge.Value = (r + runs) / (2 * runs) * 100;
+            elseif 1 == ch
+                Gauge.Value = r / (2 * runs) * 100;
+            end
         end
-        % get current positions and dimensions somehow
-        %sourceCoord = mean(sourceCoords(start:stop,:));
-        %receiverCoord = mean(receiverCoords(start:stop,:));
+
+        % Create image sources (and delay + coeffs) for recorded source and
+        % receiver positions. If end is reached, continue to use last
+        % recorded data
         if lastIndexCoords < (r+1)
             [~,isourceCoord,delay,~,coefs] = IRfromCuboid(roomDimensions,sourceCoords(lastIndexCoords,:),receiverCoords(lastIndexCoords,:),maxReverb,wallCoef,Fs);
         else
             [~,isourceCoord,delay,~,coefs] = IRfromCuboid(roomDimensions,sourceCoords(r+1,:),receiverCoords(r+1,:),maxReverb,wallCoef,Fs);
         end
-        %delay=[1;2;1000; 0.2*Fs; 0.4*Fs];
-        %coefs=[1;1;0.1; 1; 1];
+
     
         %for loop over image source rays
             for i = 1:length(delay)
             % shift and dampen block
             singleImageBlock = [zeros(delay(i),width(block));block]*coefs(i);
             
-            % get elevation and azimuth
+            % Compute HRIR for position of receiver and current image
+            % source and resample to used sample rate
             if lastIndexCoords < (r+1)
                 [HRIR(:,1), HRIR(:,2)] = computeFinalHrir(receiverCoords(lastIndexCoords, :), isourceCoord(i, :), HRIR_set, Fs); 
             else
                 [HRIR(:,1), HRIR(:,2)] = computeFinalHrir(receiverCoords(r+1, :), isourceCoord(i, :), HRIR_set, Fs); 
             end
-    
-            % get corresponding HRIR
-            % getHRIR(elev,azim,ch);
-            %HRIR = computeFinalHrir(receiverCoord(r+1), sourceCoord(r+1), HRIR_set, Fs);
-            %resample(HRIR(:,1), Fs, 44100);
             resample(HRIR(:,ch), Fs, 44100);
-            % prep block
-            [convBlockSize,zStart,zEnd]=getPrepParams(singleImageBlock,HRIR(:,ch),blockSize);
-            singleImageBlock = [singleImageBlock; zeros(zEnd,width(singleImageBlock))];%[zeros(zStart ,width(singleImageBlock)); singleImageBlock; zeros(zEnd,width(singleImageBlock))];
+
+
+            % Prepare block
+            [convBlockSize, ~ ,zEnd]=getPrepParams(singleImageBlock,HRIR(:,ch),blockSize);
+            singleImageBlock = [singleImageBlock; zeros(zEnd,width(singleImageBlock))];
     
             % set first overlap to zero
             overlap = zeros(convBlockSize,1);
@@ -105,13 +108,11 @@ for ch = 1:2%width(audio)
                 convBlock = singleImageBlock(startConv:stopConv);
     
                 %do overlap save
-                %[tempOutput,overlap]=realTimeConvAndOutput(convBlock,overlap,HRIR,blockSize);
-
                 [tempOutput,overlap]=realTimeConvAndOutput(convBlock,overlap,HRIR(:,ch),blockSize);
                 
                 % add tempOut to output
-                currentStart = start + blockSize * b;    %start-1+startConv;
-                currentStop = stop + blockSize * b;     %currentStart+blockSize-1;
+                currentStart = start + blockSize * b;    
+                currentStop = stop + blockSize * b;     
                 if length(output(:,1)) < currentStop
                     output = [output; zeros(currentStop-length(output), width(output))];
                 end
